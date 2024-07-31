@@ -502,7 +502,7 @@ def upload_process(entry_var:tk.StringVar):
                     validated.append(parsed_row)
                     total_rows += 1
                 else:
-                    return (False, f'Data dengan NIK {row['nik']} di row {i+2} sudah terdaftar!')
+                    return (False, f"Data dengan NIK {row['nik']} di row {i+2} sudah terdaftar!")
         res, msg = dbconnect.insert_record_via_csv(validated)
         if res:
             total_data = dbconnect.get_total_records()
