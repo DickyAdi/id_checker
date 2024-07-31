@@ -9,7 +9,7 @@ import datetime as dt
 from typing import List
 import re
 
-from . import dbconnect
+from helper import dbconnect
 
 if getattr(sys, 'frozen', False):
     abs_path = sys._MEIPASS
