@@ -117,7 +117,7 @@ def main():
 
     root = tk.Tk()
     # root.withdraw()
-    width = 600
+    width = 700
     height = 500
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()

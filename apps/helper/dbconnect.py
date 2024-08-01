@@ -160,8 +160,7 @@ def select_all_records(limit=None, offset=None, db_name:str=None, root:str='./')
         Tuple(bool, List): Tuple of bool and list, bool indicate whether the process is success or not while list is the result of the process. 
     """
     db_path = os.path.join(root, DB) if db_name == None else os.path.join(root, db_name)
-    # print(limit, offset)
-    if limit != 0:
+    if limit:
         query = f'''
             SELECT * FROM db_checker LIMIT {limit} OFFSET {offset}
         '''
@@ -169,7 +168,6 @@ def select_all_records(limit=None, offset=None, db_name:str=None, root:str='./')
         query = '''
             SELECT * FROM db_checker
         '''
-    # print(query)
     with sqlite3.connect(db_path) as conn:
         try:
             res = conn.execute(query).fetchall()

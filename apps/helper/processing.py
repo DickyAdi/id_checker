@@ -595,6 +595,8 @@ def dump_to_csv(path:str):
                         writer.writerow(unparse_value)
             except IOError as e:
                 return (False, f'Error pada saat process dumping csv')
+            except Exception as e:
+                return (False, f'Unexpected Error {e}')
             else:
                 return (True, f'Data berhasil di export dengan nama {file_name} di folder {possible_path}')
     else:
