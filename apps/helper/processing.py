@@ -8,6 +8,7 @@ from datetime import datetime
 import datetime as dt
 from typing import List
 import re
+from PIL import ImageTk, Image
 
 # from helper.dbconnect import dbconnect
 import helper.dbconnect as dbconnect
@@ -36,6 +37,11 @@ KOLEKTIBILITAS_TO_IDX = {
     'Macet' : 4,
     'Daftar hitam' : 5
 }
+
+def to_imagetk(image_path:str):
+    image = Image.open(os.path.join(abs_path, image_path))
+    imagetk = ImageTk.PhotoImage(image)
+    return imagetk
 
 def insert_process(fields:List[tuple]):
     """insert a new data to the database

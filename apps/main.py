@@ -3,6 +3,9 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import filedialog
 from pathlib import Path
+import os
+import sys
+from PIL import ImageTk
 
 from helper import processing
 
@@ -114,11 +117,15 @@ def main():
         selected_row = view_data_list.item(selected)['values']
         if selected_row:
             delete_button.configure(state='normal')
-
+    
+    if getattr(sys, 'frozen', False):
+        abs_path = sys._MEIPASS
+    else:
+        abs_path = os.path.abspath('.')
     root = tk.Tk()
     # root.withdraw()
-    width = 700
-    height = 500
+    width = 650
+    height = 580
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
 
@@ -127,10 +134,13 @@ def main():
     root.geometry(f'{width}x{height}+{x}+{y}')
     root.minsize(width, height)
     root.title("ID Checker")
-
+    corporate_logo = processing.to_imagetk('logo_BJA_PNG(resize).png')
+    corporate_logo_label = ttk.Label(root, image=corporate_logo)
+    corporate_logo_label.image = corporate_logo
+    corporate_logo_label.grid(row=0, column=0, sticky='n', pady=10, padx=15)
 
     notebook = ttk.Notebook(root)
-    notebook.grid(row=0, column=0, sticky='nsew')
+    notebook.grid(row=1, column=0, sticky='nsew')
 
     tab1 = ttk.Frame(notebook)
     notebook.add(tab1, text='data')
