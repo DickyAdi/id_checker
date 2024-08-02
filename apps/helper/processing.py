@@ -9,6 +9,7 @@ import datetime as dt
 from typing import List
 import re
 from PIL import ImageTk, Image
+from xhtml2pdf import pisa
 
 # from helper.dbconnect import dbconnect
 import helper.dbconnect as dbconnect
@@ -607,3 +608,101 @@ def dump_to_csv(path:str):
                 return (True, f'Data berhasil di export dengan nama {file_name} di folder {possible_path}')
     else:
         return (False, f'{str(possible_path)} bukan merupakan sebuah directory')
+
+def print_pdf(output_path):
+    possible_path = Path(output_path)
+    dataDict = {
+        'nik' : 3512071701010004,
+        'nama' : 'Dicky Adi Naufal Farhansyah',
+        'tempat_lahir' : 'Situbondo',
+        'tanggal_lahir' : '17-01-2001',
+        'nama_pasangan' : 'Mang eak',
+        'nama_ibu_kandung' : 'Desi',
+        'kolektibilitas' : 'Lancar',
+        'keterangan' : 'Bulanan'
+    }
+    html_code = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <title>Template PDF Testing</title>
+            <style>
+                @page {{
+                    size: letter portrait;
+                    @frame content_frame {{
+                        left: 50pt;
+                        width: 512pt;
+                        top: 50pt;
+                        height: 692pt;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+                <img 
+                src="apps/assets/img/logo_BJA_PNG(resize).jpg" 
+                alt="Corporate logo"
+                style="display:inline-block; width:auto; height:auto; text-align:right;"
+                />
+                    <hr />
+                    <h1>Data Debitur</h1>
+                    <table>
+                        <tr>
+                            <td>NIK</td>
+                            <td>:</td>
+                            <td>{dataDict['nik']}</td>
+                        </tr>
+                        <tr>
+                            <td>Nama</td>
+                            <td>:</td>
+                            <td>{dataDict['nama']}</td>
+                        </tr>
+                        <tr>
+                            <td>Tempat Lahir</td>
+                            <td>:</td>
+                            <td>{dataDict['tempat_lahir']}</td>
+                        </tr>
+                        <tr>
+                            <td>Tanggal Lahir</td>
+                            <td>:</td>
+                            <td>{dataDict['tanggal_lahir']}</td>
+                        </tr>
+                        <tr>
+                            <td>Nama Pasangan</td>
+                            <td>:</td>
+                            <td>{dataDict['nama_pasangan']}</td>
+                        </tr>
+                        <tr>
+                            <td>Nama Ibu Kandung</td>
+                            <td>:</td>
+                            <td>{dataDict['nama_ibu_kandung']}</td>
+                        </tr>
+                        <tr>
+                            <td>Kolektibilitas</td>
+                            <td>:</td>
+                            <td>{dataDict['kolektibilitas']}</td>
+                        </tr>
+                        <tr>
+                            <td>Keterangan</td>
+                            <td>:</td>
+                            <td>{dataDict['keterangan']}</td>
+                        </tr>
+                    </table>
+                    <p>Dengan ini menugaskan petugas lapangan untuk melakukan pengecekan lebih lanjut.</p>
+        </body>
+    </html>
+    """
+    if possible_path.is_dir():
+        file_name = os.path.join(possible_path, f'{dataDict["nama"]}_{dataDict["nik"]}.pdf')
+        try:
+            # pdfkit.from_string(html_code, file_name)
+            with open(file_name, 'w+b') as output_file:
+                pdf_writer_status = pisa.CreatePDF(html_code, dest=output_file)
+        except Exception as e:
+            print(f'Something went wrong {e}')
+            return (False, f'Something went wrong')
+        else:
+            return (pdf_writer_status, f'Data sudah di cetak! Cek {possible_path}')
+    else:
+        return (False, f'{possible_path} bukan merupakan sebuah direktori!')

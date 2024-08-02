@@ -1,0 +1,4 @@
+Pillow==9.5.0
+Pillow==10.4.0
+sv_ttk==2.6.0
+xhtml2pdf==0.2.16

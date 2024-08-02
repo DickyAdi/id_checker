@@ -3,11 +3,13 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import filedialog
 from pathlib import Path
-import os
-import sys
-from PIL import ImageTk
+# import os
+# import sys
+# from PIL import ImageTk
+import sv_ttk
 
 from helper import processing
+import sv_ttk.theme
 
 def main():
     def edit_button_handler():
@@ -117,15 +119,24 @@ def main():
         selected_row = view_data_list.item(selected)['values']
         if selected_row:
             delete_button.configure(state='normal')
+
+    def print_button_handler():
+        possible_path = filedialog.askdirectory()
+        if possible_path:
+            res, msg = processing.print_pdf(possible_path)
+            if res:
+                messagebox.showinfo('Success', msg)
+            else:
+                messagebox.showerror('Failed', msg)
     
-    if getattr(sys, 'frozen', False):
-        abs_path = sys._MEIPASS
-    else:
-        abs_path = os.path.abspath('.')
+    # if getattr(sys, 'frozen', False):
+    #     abs_path = sys._MEIPASS
+    # else:
+    #     abs_path = os.path.abspath('.')
     root = tk.Tk()
     # root.withdraw()
     width = 650
-    height = 580
+    height = 620
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
 
@@ -134,19 +145,20 @@ def main():
     root.geometry(f'{width}x{height}+{x}+{y}')
     root.minsize(width, height)
     root.title("ID Checker")
-    corporate_logo = processing.to_imagetk('logo_BJA_PNG(resize).png')
+    corporate_logo = processing.to_imagetk('apps/assets/img/logo_BJA_PNG(resize).png')
     corporate_logo_label = ttk.Label(root, image=corporate_logo)
     corporate_logo_label.image = corporate_logo
     corporate_logo_label.grid(row=0, column=0, sticky='n', pady=10, padx=15)
 
     notebook = ttk.Notebook(root)
-    notebook.grid(row=1, column=0, sticky='nsew')
+    notebook.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
 
-    tab1 = ttk.Frame(notebook)
-    notebook.add(tab1, text='data')
+    # tab1 = ttk.Frame(notebook)
+    # notebook.add(tab1, text='data')
 
-    input_form_frame = ttk.Frame(tab1, padding=10)
-    input_form_frame.grid(row=0, column=0, columnspan=2, sticky='nsew')
+    input_form_frame = ttk.Frame(notebook, padding=10)
+    notebook.add(input_form_frame, text='data')
+    # input_form_frame.grid(row=0, column=0, columnspan=2, sticky='nsew')
 
     nik_label = tk.Label(input_form_frame, text='NIK*')
     nik_label_error = tk.Label(input_form_frame, text='', font=('TkDefaultFont', 8), foreground='red')
@@ -181,13 +193,13 @@ def main():
 
     tempat_lahir_label =ttk.Label(input_form_frame, text='Tempat lahir*')
     tempat_lahir_label_error = ttk.Label(input_form_frame, text='', font=('TkDefaultFont', 8), foreground='red')
-    tempat_lahir_label.grid(row=4, column=1, sticky='w')
-    tempat_lahir_label_error.grid(row=4, column=1)
+    tempat_lahir_label.grid(row=4, column=1, sticky='w', padx=4)
+    tempat_lahir_label_error.grid(row=4, column=1, padx=4)
     tempat_lahir_entry = tk.StringVar()
     tempat_lahir =ttk.Entry(input_form_frame, textvariable=tempat_lahir_entry, state='disabled')
     tempat_lahir_reset_bg = tempat_lahir.cget('foreground')
     tempat_lahir.bind('<FocusOut>', lambda event, reset_bg = tempat_lahir_reset_bg, var=tempat_lahir, var_name='tempat_lahir', error_label=tempat_lahir_label_error, var_label=tempat_lahir_label : focus_out_handler(var, var_name, reset_bg, var_label, error_label))
-    tempat_lahir.grid(row=5, column=1, sticky='ew')
+    tempat_lahir.grid(row=5, column=1, sticky='ew', padx=4)
 
     alamat_label =ttk.Label(input_form_frame, text='Alamat*')
     alamat_label_error = ttk.Label(input_form_frame, text='', font=('TkDefaultFont', 8), foreground='red')
@@ -211,13 +223,13 @@ def main():
 
     nama_ibu_kandung_label = ttk.Label(input_form_frame, text='Nama ibu kandung*')
     nama_ibu_kandung_label_error = ttk.Label(input_form_frame, text='', font=('TkDefaultFont', 8), foreground='red')
-    nama_ibu_kandung_label.grid(row=8, column=1, sticky='w')
-    nama_ibu_kandung_label_error.grid(row=8, column=1)
+    nama_ibu_kandung_label.grid(row=8, column=1, sticky='w', padx=4)
+    nama_ibu_kandung_label_error.grid(row=8, column=1, padx=4)
     nama_ibu_kandung_entry = tk.StringVar()
     nama_ibu_kandung = ttk.Entry(input_form_frame, textvariable=nama_ibu_kandung_entry, state='disabled')
     nama_ibu_kandung_reset_bg = nama_ibu_kandung.cget('foreground')
     nama_ibu_kandung.bind('<FocusOut>', lambda event, reset_bg = nama_ibu_kandung_reset_bg, var=nama_ibu_kandung, var_name='nama_ibu_kandung', error_label=nama_ibu_kandung_label_error, var_label=nama_ibu_kandung_label : focus_out_handler(var, var_name, reset_bg, var_label, error_label))
-    nama_ibu_kandung.grid(row=9, column=1, sticky='ew')
+    nama_ibu_kandung.grid(row=9, column=1, sticky='ew', padx=4)
 
     kolektibilitas_val = ['Lancar', 'Kurang lancar', 'Diragukan', 'Macet', 'Daftar hitam']
     kolektibilitas_label =ttk.Label(input_form_frame, text='Kolektibilitas*')
@@ -240,16 +252,29 @@ def main():
     keterangan.bind('<FocusOut>', lambda event, reset_bg = keterangan_reset_bg, var=keterangan, var_name='keterangan', error_label=keterangan_label_error, var_label=keterangan_label : focus_out_handler(var, var_name, reset_bg, var_label, error_label))
     keterangan.grid(row=13, column=0, sticky='ew', columnspan=2)
 
-    checkButton = ttk.Button(input_form_frame, text='Check', command=check_button_handler)
-    checkButton.grid(row=14, column=0, sticky='ew')
-    editButton = ttk.Button(input_form_frame, text='Edit', command=edit_button_handler, state='disabled')
-    editButton.grid(row=14, column=1, sticky='ew')
 
-    # input_form_frame.columnconfigure(0, weight=1)
-    # input_form_frame.columnconfigure(1, weight=1)
+    input_button_frame = ttk.Frame(input_form_frame)
+    input_button_frame.columnconfigure(0, weight=1)
+    input_button_frame.columnconfigure(1, weight=0)
+    input_button_frame.columnconfigure(2, weight=1)
+    checkButton = ttk.Button(input_button_frame, text='Check', command=check_button_handler)
+    checkButton.grid(row=0, column=0, sticky='ew', pady=4)
+
+    emptyPad = ttk.Frame(input_button_frame, width=4)
+    emptyPad.grid(row=0, column=1, sticky='ew')
+
+    editButton = ttk.Button(input_button_frame, text='Edit', command=edit_button_handler, state='disabled')
+    editButton.grid(row=0, column=2, sticky='ew', pady=4)
+
+    printButton = ttk.Button(input_button_frame, text='Print', command=print_button_handler)
+    printButton.grid(row=1, column=0, columnspan=3, sticky='ew')
+    input_button_frame.grid(row=14, column=0, columnspan=2, sticky='ew')
+
+    input_form_frame.columnconfigure(0, weight=1)
+    input_form_frame.columnconfigure(1, weight=1)
 
     #tab2
-    input_excel_frame = ttk.Frame(notebook)
+    input_excel_frame = ttk.Frame(notebook, padding=10)
     notebook.add(input_excel_frame, text='Input excel')
 
     file_upload_label = ttk.Label(input_excel_frame, text='Klik box dibawah untuk upload file excel')
@@ -266,7 +291,7 @@ def main():
     file_upload.bind('<Button-1>', lambda event, upload_entry = file_upload_entry, upload_button = upload_button : processing.upload_file_handler(upload_entry, upload_button))
 
     #tab3
-    view_data_frame = ttk.Frame(notebook)
+    view_data_frame = ttk.Frame(notebook, padding=10)
     notebook.add(view_data_frame, text='View and delete data')
 
     view_data_label = ttk.Label(view_data_frame, text='List data')
@@ -314,6 +339,7 @@ def main():
     notebook.bind('<<NotebookTabChanged>>', lambda event : lazy_show_data(event)) #Show all data only when the tab is active
     root.bind('<<NotebookTabChanged>>', lambda event: root.update_idletasks()) #To make the view more seamless when switching between tabs
     # Run the application's main event loop
+    sv_ttk.set_theme('dark')
     root.mainloop()
 
 if __name__ == '__main__':
