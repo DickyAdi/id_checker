@@ -616,6 +616,7 @@ def print_pdf(output_path):
         'nama' : 'Dicky Adi Naufal Farhansyah',
         'tempat_lahir' : 'Situbondo',
         'tanggal_lahir' : '17-01-2001',
+        'alamat' : 'wr supratman ae lah',
         'nama_pasangan' : 'Mang eak',
         'nama_ibu_kandung' : 'Desi',
         'kolektibilitas' : 'Lancar',
@@ -637,59 +638,78 @@ def print_pdf(output_path):
                         height: 692pt;
                     }}
                 }}
+                .align-colon {{
+                    text-align : center;
+                    width : 10pt;
+                }}
+                .first-col {{
+                    text-align : left;
+                    width: 100pt;
+                }}
+                .center-table {{
+                    width: 500pt;
+                    margin-left: auto;
+                    margin-right: auto;
+                }}
             </style>
         </head>
         <body>
-                <img 
-                src="apps/assets/img/logo_BJA_PNG(resize).jpg" 
-                alt="Corporate logo"
-                style="display:inline-block; width:auto; height:auto; text-align:right;"
-                />
-                    <hr />
-                    <h1>Data Debitur</h1>
-                    <table>
-                        <tr>
-                            <td>NIK</td>
-                            <td>:</td>
-                            <td>{dataDict['nik']}</td>
-                        </tr>
-                        <tr>
-                            <td>Nama</td>
-                            <td>:</td>
-                            <td>{dataDict['nama']}</td>
-                        </tr>
-                        <tr>
-                            <td>Tempat Lahir</td>
-                            <td>:</td>
-                            <td>{dataDict['tempat_lahir']}</td>
-                        </tr>
-                        <tr>
-                            <td>Tanggal Lahir</td>
-                            <td>:</td>
-                            <td>{dataDict['tanggal_lahir']}</td>
-                        </tr>
-                        <tr>
-                            <td>Nama Pasangan</td>
-                            <td>:</td>
-                            <td>{dataDict['nama_pasangan']}</td>
-                        </tr>
-                        <tr>
-                            <td>Nama Ibu Kandung</td>
-                            <td>:</td>
-                            <td>{dataDict['nama_ibu_kandung']}</td>
-                        </tr>
-                        <tr>
-                            <td>Kolektibilitas</td>
-                            <td>:</td>
-                            <td>{dataDict['kolektibilitas']}</td>
-                        </tr>
-                        <tr>
-                            <td>Keterangan</td>
-                            <td>:</td>
-                            <td>{dataDict['keterangan']}</td>
-                        </tr>
-                    </table>
-                    <p>Dengan ini menugaskan petugas lapangan untuk melakukan pengecekan lebih lanjut.</p>
+            <img 
+            src="apps/assets/img/kop_surat.jpg" 
+            alt="Corporate logo"
+            style="display:inline-block; width:auto; height:auto; text-align:right;"
+            />
+            <hr />
+            <div>
+            <h1>Data Debitur</h1>
+            <table>
+                <tr>
+                    <td class="first-col">NIK</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['nik']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Nama</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['nama']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Tempat Lahir</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['tempat_lahir']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Tanggal Lahir</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['tanggal_lahir']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Alamat</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['alamat']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Nama Pasangan</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['nama_pasangan']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Nama Ibu Kandung</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['nama_ibu_kandung']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Kolektibilitas</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['kolektibilitas']}</td>
+                </tr>
+                <tr>
+                    <td class="first-col">Keterangan</td>
+                    <td class="align-colon">:</td>
+                    <td>{dataDict['keterangan']}</td>
+                </tr>
+            </table>
+            <p>Dengan ini menugaskan petugas lapangan untuk melakukan pengecekan lebih lanjut.</p>
         </body>
     </html>
     """
