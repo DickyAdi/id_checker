@@ -53,7 +53,7 @@ def main():
     def check_button_handler():
         if processing.validate_input(nik, 'nik', nik_reset_bg, nik_label, nik_label_error):
             processing.processEntry(nik, nama, tanggal_lahir, tempat_lahir, alamat, nama_pasangan, nama_ibu_kandung, keterangan, kolektibilitas
-                                , nik_entry, nama_entry, tanggal_lahir_entry, tempat_lahir_entry, alamat_entry, nama_pasangan_entry, nama_ibu_kandung_entry, editButton)
+                                , nik_entry, nama_entry, tanggal_lahir_entry, tempat_lahir_entry, alamat_entry, nama_pasangan_entry, nama_ibu_kandung_entry, editButton, printButton)
 
     def focus_out_handler(var, var_name, reset_bg, var_label,error_label):
         processing.validate_input(var, var_name, reset_bg, var_label, error_label)
@@ -123,11 +123,12 @@ def main():
     def print_button_handler():
         possible_path = filedialog.askdirectory()
         if possible_path:
-            res, msg = processing.print_pdf(possible_path)
+            res, msg = processing.print_pdf( nik_entry.get(), possible_path)
             if res:
                 messagebox.showinfo('Success', msg)
             else:
                 messagebox.showerror('Failed', msg)
+            printButton.configure(state='disabled')
     
     # if getattr(sys, 'frozen', False):
     #     abs_path = sys._MEIPASS
@@ -266,7 +267,7 @@ def main():
     editButton = ttk.Button(input_button_frame, text='Edit', command=edit_button_handler, state='disabled')
     editButton.grid(row=0, column=2, sticky='ew', pady=4)
 
-    printButton = ttk.Button(input_button_frame, text='Print', command=print_button_handler)
+    printButton = ttk.Button(input_button_frame, text='Print', state='disabled', command=print_button_handler)
     printButton.grid(row=1, column=0, columnspan=3, sticky='ew')
     input_button_frame.grid(row=14, column=0, columnspan=2, sticky='ew')
 

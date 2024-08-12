@@ -73,7 +73,7 @@ def edit_process(fields:List[tuple]):
 
 def processEntry(nik:ttk.Entry, nama:ttk.Entry, tanggal_lahir:ttk.Entry, tempat_lahir:ttk.Entry, alamat:ttk.Entry, nama_pasangan:ttk.Entry, nama_ibu_kandung, keterangan:tk.Text, kolektibilitas:ttk.Combobox,
                  nik_entry:tk.StringVar, nama_entry:tk.StringVar, tanggal_lahir_entry:tk.StringVar, tempat_lahir_entry:tk.StringVar, alamat_entry:tk.StringVar, nama_pasangan_entry:tk.StringVar, nama_ibu_kandung_entry,
-                 editButton:ttk.Button):
+                 editButton:ttk.Button, printButton:ttk.Button):
     """Processing an entry, whether its check, insert, or edit
 
     Args:
@@ -94,6 +94,7 @@ def processEntry(nik:ttk.Entry, nama:ttk.Entry, tanggal_lahir:ttk.Entry, tempat_
         nama_pasangan_entry (tk.StringVar): Nama pasangan placeholder variable
         nama_ibu_kandung_entry (tk.StringVar): Nama ibu kandung placeholder variable
         editButton (ttk.Button): Edit button, later will be modified according to the condition
+        printButton (ttk.Button): Print button, later will be modified according to the condition
     """
     key = nik.get()
     res = dbconnect.search_record(key)
@@ -102,6 +103,7 @@ def processEntry(nik:ttk.Entry, nama:ttk.Entry, tanggal_lahir:ttk.Entry, tempat_
     if res:
         #if found, proceed to possible edit by setting the edit button state, set the input state to normal, and fill the input with the record found data
         editButton.configure(state='normal')
+        printButton.configure(state='normal')
         [var.configure(state='normal') for var in listVar]
         setEntry(nik_entry, res, 'nik')
         setEntry(nama_entry, res, 'nama')
@@ -417,9 +419,6 @@ def validate_row_csv(dict_row:dict):
         List: List of columns that contain error values
     """
     error_list = []
-    # def check_valid_alphanum(name):
-    #     pattern_name = re.compile(r"^[A-Za-z0-9., \-]+$")
-    #     return True if pattern_name.match(name) else False
     def check_valid_alphanum(name, nullable=True):
         pattern_name = re.compile(r"^[A-Za-z0-9.', \-]+$")
         if len(name) == 0 and nullable:
@@ -609,24 +608,34 @@ def dump_to_csv(path:str):
     else:
         return (False, f'{str(possible_path)} bukan merupakan sebuah directory')
 
-def print_pdf(output_path):
+def print_pdf(key:str, output_path:str):
+    """Export or print the founded records using NIK as the key
+
+    Args:
+        key (str): key to search the data, in this case is NIK
+        output_path (str): The output path where the file will be stored
+    
+    Returns:
+        Tuple(bool, str): Tuple of success boolean and message.
+    """
+    def format_to_parse(dict_value):
+        var_name = list(dict_value.keys())
+        var = list(dict_value.values())
+        return (var_name, var)
+    def parsed_to_row(tuple_values):
+        var_names, vars = tuple_values
+        new_row = {}
+        for var_name, var in zip(var_names, vars):
+            new_row[var_name] = var
+        return new_row
+    
     possible_path = Path(output_path)
-    dataDict = {
-        'nik' : 3512071701010004,
-        'nama' : 'Dicky Adi Naufal Farhansyah',
-        'tempat_lahir' : 'Situbondo',
-        'tanggal_lahir' : '17-01-2001',
-        'alamat' : 'wr supratman ae lah',
-        'nama_pasangan' : 'Mang eak',
-        'nama_ibu_kandung' : 'Desi',
-        'kolektibilitas' : 'Lancar',
-        'keterangan' : 'Bulanan'
-    }
+    dataDict = parsed_to_row(unparse_input(format_to_parse(dict(dbconnect.search_record(key)))))
     html_code = f"""
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang='en'>
         <head>
-            <meta charset="UTF-8" />
+            <meta charset='UTF-8' />
             <title>Template PDF Testing</title>
             <style>
                 @page {{
@@ -644,79 +653,89 @@ def print_pdf(output_path):
                 }}
                 .first-col {{
                     text-align : left;
-                    width: 100pt;
+                    width: 120pt;
                 }}
-                .center-table {{
-                    width: 500pt;
-                    margin-left: auto;
-                    margin-right: auto;
+                .main-table {{
+                    margin-left: 50px;
+                    font-size : 12px;
+                }}
+                p {{
+                    font-size : 12px;
                 }}
             </style>
         </head>
         <body>
             <img 
-            src="apps/assets/img/kop_surat.jpg" 
-            alt="Corporate logo"
-            style="display:inline-block; width:auto; height:auto; text-align:right;"
+            src='apps/assets/img/kop_surat.jpg'
+            alt='Corporate logo'
+            style='display:inline-block; width:auto; height:auto; text-align:right;'
             />
             <hr />
-            <div>
-            <h1>Data Debitur</h1>
-            <table>
+            <br>
+            <table style='font-size:12px;'>
                 <tr>
-                    <td class="first-col">NIK</td>
-                    <td class="align-colon">:</td>
+                    <td>Kepada:</td>
+                </tr>
+                <tr>
+                    <td>Petugas lapangan terkait</td>
+                </tr>
+            </table>
+            <br>
+            <p>Demi memastikan dan/atau menjaga proses kelancaran debitur, dengan ini menugaskan petugas lapangan untuk melakukan pengecekan lebih lanjut berdasarkan dengan data yang terlampir dibawah ini.</p>
+            <table class='main-table'>
+                <tr>
+                    <td class='first-col'>NIK</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['nik']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Nama</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Nama</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['nama']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Tempat Lahir</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Tempat Lahir</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['tempat_lahir']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Tanggal Lahir</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Tanggal Lahir</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['tanggal_lahir']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Alamat</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Alamat</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['alamat']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Nama Pasangan</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Nama Pasangan</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['nama_pasangan']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Nama Ibu Kandung</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Nama Ibu Kandung</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['nama_ibu_kandung']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Kolektibilitas</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Kolektibilitas</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['kolektibilitas']}</td>
                 </tr>
                 <tr>
-                    <td class="first-col">Keterangan</td>
-                    <td class="align-colon">:</td>
+                    <td class='first-col'>Keterangan</td>
+                    <td class='align-colon'>:</td>
                     <td>{dataDict['keterangan']}</td>
                 </tr>
             </table>
-            <p>Dengan ini menugaskan petugas lapangan untuk melakukan pengecekan lebih lanjut.</p>
+            <p>Adapun dengan diberikannya data debitur diatas, diharapkan petugas lapangan dapat menggunakan data terlampir sebaik-baiknya sesuai dengan prosedur yang telah ditentukan.</p>
         </body>
     </html>
     """
     if possible_path.is_dir():
         file_name = os.path.join(possible_path, f'{dataDict["nama"]}_{dataDict["nik"]}.pdf')
         try:
-            # pdfkit.from_string(html_code, file_name)
             with open(file_name, 'w+b') as output_file:
                 pdf_writer_status = pisa.CreatePDF(html_code, dest=output_file)
         except Exception as e:
