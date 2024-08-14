@@ -587,20 +587,20 @@ def dump_to_csv(path:str):
         Tuple(bool, str): Tuple of success boolean and message
     """
     possible_path = Path(path)
-    file_name = f'{datetime.now().strftime("%d-%m-%Y_%H:%M:%S")}_database_dump.csv'
+    file_name = f'{datetime.now().strftime("%d-%m-%Y")}_database_dump.csv'
     column_name = ['nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_pasangan', 'nama_ibu_kandung', 'kolektibilitas', 'keterangan']
     if possible_path.is_dir():
         con, datas = dbconnect.select_all_records()
         if con:
             try:
-                with open(os.path.join(possible_path, file_name), 'x', newline='') as csvfile:
+                with open(os.path.join(possible_path, file_name), 'w', newline='') as csvfile:
                     writer = csv.writer(csvfile)
                     writer.writerow(column_name)
                     for data in datas:
                         _, unparse_value = unparse_input((column_name, list(data)))
                         writer.writerow(unparse_value)
             except IOError as e:
-                return (False, f'Error pada saat process dumping csv')
+                return (False, f'Error pada saat process dumping csv {e}')
             except Exception as e:
                 return (False, f'Unexpected Error {e}')
             else:
