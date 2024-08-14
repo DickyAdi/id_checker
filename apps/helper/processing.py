@@ -672,16 +672,12 @@ def print_pdf(key:str, output_path:str):
             />
             <hr />
             <br>
-            <table style='font-size:12px;'>
+            <table style='font-size:14px; font-weight: bold;'>
                 <tr>
-                    <td>Kepada:</td>
-                </tr>
-                <tr>
-                    <td>Petugas lapangan terkait</td>
+                    <td>Data debitur</td>
                 </tr>
             </table>
             <br>
-            <p>Demi memastikan dan/atau menjaga proses kelancaran debitur, dengan ini menugaskan petugas lapangan untuk melakukan pengecekan lebih lanjut berdasarkan dengan data yang terlampir dibawah ini.</p>
             <table class='main-table'>
                 <tr>
                     <td class='first-col'>NIK</td>
@@ -729,7 +725,6 @@ def print_pdf(key:str, output_path:str):
                     <td>{dataDict['keterangan']}</td>
                 </tr>
             </table>
-            <p>Adapun dengan diberikannya data debitur diatas, diharapkan petugas lapangan dapat menggunakan data terlampir sebaik-baiknya sesuai dengan prosedur yang telah ditentukan.</p>
         </body>
     </html>
     """
