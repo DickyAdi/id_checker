@@ -3,9 +3,8 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import filedialog
 from pathlib import Path
-# import os
-# import sys
-# from PIL import ImageTk
+import os
+import sys
 import sv_ttk
 
 from helper import processing
@@ -130,14 +129,14 @@ def main():
                 messagebox.showerror('Failed', msg)
             printButton.configure(state='disabled')
     
-    # if getattr(sys, 'frozen', False):
-    #     abs_path = sys._MEIPASS
-    # else:
-    #     abs_path = os.path.abspath('.')
+    if getattr(sys, 'frozen', False):
+        abs_path = sys._MEIPASS
+    else:
+        abs_path = os.path.abspath('.')
     root = tk.Tk()
     # root.withdraw()
     width = 650
-    height = 620
+    height = 680
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
 
@@ -146,7 +145,7 @@ def main():
     root.geometry(f'{width}x{height}+{x}+{y}')
     root.minsize(width, height)
     root.title("ID Checker")
-    corporate_logo = processing.to_imagetk('apps/assets/img/logo_BJA_PNG(resize).png')
+    corporate_logo = processing.to_imagetk('./assets/img/logo_BJA_PNG(resize).png')
     corporate_logo_label = ttk.Label(root, image=corporate_logo)
     corporate_logo_label.image = corporate_logo
     corporate_logo_label.grid(row=0, column=0, sticky='n', pady=10, padx=15)

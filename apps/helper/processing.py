@@ -666,7 +666,7 @@ def print_pdf(key:str, output_path:str):
         </head>
         <body>
             <img 
-            src='apps/assets/img/kop_surat.jpg'
+            src='{os.path.join(abs_path,'./assets/img/kop_surat.jpg')}'
             alt='Corporate logo'
             style='display:inline-block; width:auto; height:auto; text-align:right;'
             />
@@ -729,7 +729,7 @@ def print_pdf(key:str, output_path:str):
     </html>
     """
     if possible_path.is_dir():
-        file_name = os.path.join(possible_path, f'{dataDict["nama"]}_{dataDict["nik"]}.pdf')
+        file_name = os.path.join(possible_path, f'{dataDict["nama"]}_{dataDict["nik"]}_{datetime.now().strftime("%d-%m-%Y")}.pdf')
         try:
             with open(file_name, 'w+b') as output_file:
                 pdf_writer_status = pisa.CreatePDF(html_code, dest=output_file)
