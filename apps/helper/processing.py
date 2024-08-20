@@ -54,8 +54,12 @@ def insert_process(fields:List[tuple]):
         bool: Response of the insert process to the database, if True the process succeed otherwise False
     """
     global ALL_DATA_LOADED, TREEVIEW_LOADED_ROWS
+    last_num = 1 if is_db_empty() else dbconnect.get_total_records()+1
     var = [var.get() if not isinstance(var, tk.Text) else var.get('1.0', tk.END) for var, _, x, y, z in fields]
+    unique_id = str(f'0-{last_num:04d}')
+    var.append(unique_id)
     var_name = [var_name for _, var_name, x, y, z in fields]
+    var_name.append('id')
     data = (var_name, var)
     parsed_data = parse_input(data)
     response = dbconnect.insert_record(parsed_data)
@@ -420,7 +424,7 @@ def validate_row_csv(dict_row:dict):
     """
     error_list = []
     def check_valid_alphanum(name, nullable=True):
-        pattern_name = re.compile(r"^[A-Za-z0-9.', \-]+$")
+        pattern_name = re.compile(r"^[A-Za-z0-9.', \-\(\)]+$")
         if len(name) == 0 and nullable:
             return True
         else:
@@ -493,7 +497,9 @@ def upload_process(entry_var:tk.StringVar):
         return new_row
     if validate_upload(entry_var):
         total_rows = 0
+        last_id = 1 if is_db_empty() else dbconnect.get_total_records()+1
         validated = []
+        duplicated_records = set()
         with open(os.path.join(abs_path, entry_var.get()), 'r', encoding='utf-8-sig', newline='') as file:
             header = file.readline()
             delim = ',' if len(header.split(',')) > 1 else ';'
@@ -501,15 +507,19 @@ def upload_process(entry_var:tk.StringVar):
             reader = csv.DictReader(file, delimiter=delim)
             for i, row in enumerate(reader):
                 is_unique = True if dbconnect.search_record(row['nik']) == None else False
-                if is_unique:
+                not_duplicate = True if row['nik'] not in duplicated_records else False
+                if is_unique and not_duplicate:
+                    duplicated_records.add(row['nik'])
                     not_valid = validate_row_csv(row)
                     if not_valid:
                         return (False, f'Terdapat error di row {i+2} kolom {not_valid}')
                     parsed_row = parsed_to_row(parse_input(format_to_parse(row)))
+                    parsed_row['id'] = str(f'0-{last_id:04d}')
                     validated.append(parsed_row)
+                    last_id += 1
                     total_rows += 1
                 else:
-                    return (False, f"Data dengan NIK {row['nik']} di row {i+2} sudah terdaftar!")
+                    return (False, f"Data dengan NIK {row['nik']} di row {i+2} sudah terdaftar atau terdapat duplikat pada file!")
         res, msg = dbconnect.insert_record_via_csv(validated)
         if res:
             total_data = dbconnect.get_total_records()
@@ -539,7 +549,7 @@ def show_all_data(tree_view:ttk.Treeview):
         return False
     else:
         total_records = dbconnect.get_total_records()
-        fields = ['nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_pasangan', 'nama_ibu_kandung', 'kolektibilitas', 'keterangan']
+        fields = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_pasangan', 'nama_ibu_kandung', 'kolektibilitas', 'keterangan']
         success, data = dbconnect.select_all_records(limit=TREEVIEW_BATCH, offset=TREEVIEW_LOADED_ROWS)
         if success and data:
             for row in data:
@@ -588,7 +598,7 @@ def dump_to_csv(path:str):
     """
     possible_path = Path(path)
     file_name = f'{datetime.now().strftime("%d-%m-%Y")}_database_dump.csv'
-    column_name = ['nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_pasangan', 'nama_ibu_kandung', 'kolektibilitas', 'keterangan']
+    column_name = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_pasangan', 'nama_ibu_kandung', 'kolektibilitas', 'keterangan']
     if possible_path.is_dir():
         con, datas = dbconnect.select_all_records()
         if con:
@@ -679,6 +689,11 @@ def print_pdf(key:str, output_path:str):
             </table>
             <br>
             <table class='main-table'>
+                <tr>
+                    <td class='first-col'>Id</td>
+                    <td class='align-colon'>:</td>
+                    <td>{dataDict['id']}</td>
+                </tr>
                 <tr>
                     <td class='first-col'>NIK</td>
                     <td class='align-colon'>:</td>
