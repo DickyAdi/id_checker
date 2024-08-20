@@ -89,7 +89,7 @@ def main():
 
     def delete_button_handler():
         selected = view_data_list.focus()
-        selected_row_key = view_data_list.item(selected)['values'][0]
+        selected_row_key = view_data_list.item(selected)['values'][1]
         selected_row_id = view_data_list.selection()[0]
         if selected_row_key:
             res = messagebox.askokcancel('Delete', f'Delete data dengan NIK {selected_row_key}?')
@@ -145,7 +145,8 @@ def main():
     root.geometry(f'{width}x{height}+{x}+{y}')
     root.minsize(width, height)
     root.title("ID Checker")
-    corporate_logo = processing.to_imagetk('./assets/img/logo_BJA_PNG(resize).png')
+    corporate_logo = processing.to_imagetk('apps/assets/img/logo_BJA_PNG(resize).png') #mac
+    # corporate_logo = processing.to_imagetk('./assets/img/logo_BJA_PNG(resize).png') #windows
     corporate_logo_label = ttk.Label(root, image=corporate_logo)
     corporate_logo_label.image = corporate_logo
     corporate_logo_label.grid(row=0, column=0, sticky='n', pady=10, padx=15)
@@ -296,8 +297,9 @@ def main():
 
     view_data_label = ttk.Label(view_data_frame, text='List data')
     view_data_label.grid(row=0, column=0, columnspan=2, sticky='w')
-    view_data_columns = ('nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung','nama_pasangan', 'kolektibilitas', 'keterangan')
+    view_data_columns = ('id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung','nama_pasangan', 'kolektibilitas', 'keterangan')
     view_data_list = ttk.Treeview(view_data_frame, columns=view_data_columns, show='headings')
+    view_data_list.heading('id', text='ID-CIF')
     view_data_list.heading('nik', text='NIK')
     view_data_list.heading('nama', text='Nama')
     view_data_list.heading('tanggal_lahir', text='Tanggal lahir')
