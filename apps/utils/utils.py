@@ -1,8 +1,8 @@
 from datetime import datetime
 import re
 
-def check_valid_alphanum(self, value, nullable=True):
-        pattern_name = re.compile(r"^[A-Za-z0-9.,'`\-\(\)]+$")
+def check_valid_alphanum(value, nullable=True):
+        pattern_name = re.compile(r"^[A-Za-z0-9.,'` \-\(\)]+$")
         if len(value) == 0 and nullable:
             return True
         else:
@@ -10,13 +10,13 @@ def check_valid_alphanum(self, value, nullable=True):
                 return True
             else:
                 return False
-def check_valid_nik(self, digits):
+def check_valid_nik(digits):
     pattern = re.compile(r"%[0-9]$")
     if pattern.match(digits):
         return True
     else:
         return False
-def parse_date(self, date_value:str, db_format=True):
+def parse_date(date_value:str, db_format=True):
     """Parse date input
 
     Args:

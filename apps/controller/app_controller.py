@@ -22,31 +22,38 @@ class app_controller:
         self.debitur_service = debitur_service()
 
     def check_handler(self):
-        key = self.app.nik.var.get()
-        res = self.debitur_service.find_record_by_key(key)
-        if res:
-            [var.enable_state() for var in self.app.form_control]
-            self.app.nik.set_value(res.nik)
-            self.app.nama.set_value(res.nama)
-            self.app.tanggal_lahir.set_value(res.tanggal_lahir)
-            self.app.tempat_lahir.set_value(res.tempat_lahir)
-            self.app.alamat.set_value(res.alamat)
-            self.app.nama_pasangan.set_value(res.nama_pasangan)
-            self.app.nama_ibu_kandung.set_value(res.nama_ibu_kandung)
-            self.app.kolektibilitas.set_value(res.kolektibilitas)
-            self.app.keterangan.set_value(res.keterangan)
-        else:
-            response = messagebox.askquestion('Question', 'Data tidak terdaftar, input baru?')
-            if response == 'yes':
-                self.app.edit_button.configure(text='Insert', state='normal')
+        if self.app.check_button['text'] != 'Cancel edit':
+            key = self.app.nik.var.get()
+            res, data = self.debitur_service.find_record_by_key(key)
+            if res:
                 [var.enable_state() for var in self.app.form_control]
+                self.app.edit_button.configure(state='normal')
+                self.app.print_button.configure(state='normal')
+                self.app.check_button.configure(text='Cancel edit')
+                self.app.nik.disable_state()
+                self.app.nik.set_value(data.nik)
+                self.app.nama.set_value(data.nama)
+                self.app.tanggal_lahir.set_value(data.tanggal_lahir)
+                self.app.tempat_lahir.set_value(data.tempat_lahir)
+                self.app.alamat.set_value(data.alamat)
+                self.app.nama_pasangan.set_value(data.nama_pasangan)
+                self.app.nama_ibu_kandung.set_value(data.nama_ibu_kandung)
+                self.app.kolektibilitas.set_value(data.kolektibilitas)
+                self.app.keterangan.set_value(data.keterangan)
             else:
-                self.app.edit_button.configure(text='Edit', state='disabled')
-                self.clear_all_input()
-                # self.app.nik.clear_value()
-                # for var in self.app.form_control:
-                #     var.clear_value()
-                #     var.disable_state()
+                response = messagebox.askquestion('Question', 'Data tidak terdaftar, input baru?')
+                if response == 'yes':
+                    self.app.edit_button.configure(text='Insert', state='normal')
+                    [var.enable_state() for var in self.app.form_control]
+                else:
+                    self.app.edit_button.configure(state='disabled')
+                    self.clear_all_input()
+        else:
+            self.clear_all_input()
+            self.app.nik.enable_state()
+            self.app.check_button.configure(text='Check')
+            self.app.print_button.configure(state='disabled')
+            self.app.edit_button.configure(state='disabled')
 
     def clear_all_input(self):
         self.app.nik.clear_value()
@@ -87,7 +94,10 @@ class app_controller:
                 if response:
                     messagebox.showinfo('Success', msg)
                     self.clear_all_input()
+                    self.app.nik.enable_state()
                     self.app.edit_button.configure(state='disabled')
+                    self.app.print_button.configure(state='disabled')
+                    self.app.check_button.configure(text='Check')
                 else:
                     messagebox.showerror('Failed', msg)
             else:

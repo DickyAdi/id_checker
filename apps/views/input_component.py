@@ -33,7 +33,7 @@ class input_group:
         self.label.configure(foreground=self.reset_bg)
         self.error_label.configure(text='')
     def set_value(self, value):
-        self.var.set(value)
+        self.entry.set(value)
     def get_value(self):
         return self.var.get()
     def clear_value(self):
@@ -60,6 +60,10 @@ class combo_input(input_group):
         self.var = ttk.Combobox(self.frame, values=self.combo_box_values, state=self.state)
         return self.var
     def disable_state(self):
+        self.var.configure(state='disabled')
+    def set_value(self, value):
+        self.var.set(value)
+    def enable_state(self):
         self.var.configure(state='readonly')
     def clear_value(self):
         self.var.set('')

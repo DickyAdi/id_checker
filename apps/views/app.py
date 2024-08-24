@@ -49,7 +49,7 @@ class App(tk.Tk):
         self.tempat_lahir = input_component.entry_input(form_frame, 'tempat_lahir', 'Tempat lahir', 4, 1, state='disabled', required=True)
         self.alamat = input_component.entry_input(form_frame, 'alamat', 'Alamat', 5, 0, state='disabled', required=True)
         self.nama_ibu_kandung = input_component.entry_input(form_frame, 'nama_ibu_kandung', 'Nama ibu kandung', 6, 0,  state='disabled', required=True)
-        self.nama_pasangan = input_component.entry_input(form_frame, 'nama_pasangan', 'Nama pasnagan', 7, 0,  state='disabled', required=False)
+        self.nama_pasangan = input_component.entry_input(form_frame, 'nama_pasangan', 'Nama pasangan', 7, 0,  state='disabled', required=False)
         self.kolektibilitas = input_component.combo_input(form_frame, 'kolektibilitas', 'Kolektibilitas', 8, 0,  state='disabled', required=True)
         self.keterangan = input_component.text_input(form_frame, 'keterangan', 'Keterangan', 9, 0,  state='disabled', required=False)
         self.form_control = [self.nama, self.tanggal_lahir, self.tempat_lahir, self.alamat, self.nama_ibu_kandung, self.nama_pasangan, self.kolektibilitas, self.keterangan]

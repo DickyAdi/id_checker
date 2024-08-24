@@ -1,7 +1,7 @@
 from datetime import datetime
 import re
 
-from controller.app_controller import app_controller
+# from controller.app_controller import app_controller
 from controller.debitur_controller import debitur_controller
 from model.debitur import debitur
 
@@ -16,8 +16,7 @@ class debitur_service:
     def get_total_records(self):
         return self.debitur_controller.get_total_records()
     def insert_to_db(self, data:dict):
-        response = self.debitur_controller.insert(data)
-        return response
+        return self.debitur_controller.insert(data)
     def validate_on_submit_service(self, data:dict):
         return self.debitur_controller.validate_on_submit(data)
     def edit_record_service(self, data:dict):

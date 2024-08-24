@@ -28,18 +28,39 @@ else:
     abs_path = os.path.abspath('.')
 DB = os.path.join(abs_path, 'CHECKER_DATABASE.db')
 class debitur:
-    def __init__(self, nik='', id='', nama='', tempat_lahir='', tanggal_lahir='', alamat='', nama_ibu_kandung='', kolektibilitas=None, nama_pasangan='', keterangan='', db_name:str=None, root:str='./'):
-        self.id = id
-        self.nik = nik
-        self.nama = nama
-        self.tanggal_lahir = tanggal_lahir
-        self.tempat_lahir = tempat_lahir
-        self.alamat = alamat
-        self.nama_ibu_kandung = nama_ibu_kandung
-        self.nama_pasangan = nama_pasangan
-        self.kolektibilitas = kolektibilitas
-        self.keterangan = keterangan
+    def __init__(self, db_name:str=None, root:str='./'):
+        self.id:str = ''
+        self.nik:str = ''
+        self.nama:str = ''
+        self.tanggal_lahir:str = ''
+        self.tempat_lahir:str = ''
+        self.alamat:str = ''
+        self.nama_ibu_kandung:str = ''
+        self.nama_pasangan:str = ''
+        self.kolektibilitas:int = None
+        self.keterangan:str = ''
+        self.keys = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung', 'nama_pasangan', 'kolektibilitas', 'keterangan']
         self.db_path = os.path.join(root, DB) if db_name == None else os.path.join(root, db_name)
+
+    def _get_values(self):
+        values = [self.id, self.nik, self.nama, self.tanggal_lahir, self.tempat_lahir, self.alamat, self.nama_ibu_kandung, self.nama_pasangan, self.kolektibilitas, self.keterangan]
+        return values
+
+    def create_debitur_from_dict(self, data:dict):
+        new_debitur = debitur()
+        parsed_data = self.parse_data(data)
+        new_debitur.id = parsed_data['id'] if 'id' in parsed_data.keys() else ''
+        new_debitur.nik = parsed_data['nik']
+        new_debitur.nama = parsed_data['nama']
+        new_debitur.tanggal_lahir = parsed_data['tanggal_lahir']
+        new_debitur.tempat_lahir = parsed_data['tempat_lahir']
+        new_debitur.alamat = parsed_data['alamat']
+        new_debitur.nama_ibu_kandung = parsed_data['alamat']
+        new_debitur.nama_pasangan = parsed_data['nama_pasangan']
+        new_debitur.kolektibilitas = parsed_data['kolektibilitas']
+        new_debitur.keterangan = parsed_data['keterangan']
+        return new_debitur
+
 
     def search_record(self, key:int):
         query = f'''
@@ -49,38 +70,40 @@ class debitur:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             result = conn.execute(query, param_value).fetchone()
+            result = self.unparse_data(dict(result))
             if result:
-                self.id = result['id']
-                self.nik = result['nik']
-                self.nama = result['nama']
-                self.tanggal_lahir = result['tanggal_lahir']
-                self.tempat_lahir = result['tempat_lahir']
-                self.alamat = result['alamat']
-                self.nama_ibu_kandung = result['nama_ibu_kandung']
-                self.nama_pasangan = result['nama_pasangan']
-                self.kolektibilitas = result['kolektibilitas']
-                self.keterangan = result['keterangan']
-                return True
+                new_debitur = debitur()
+                new_debitur.id = result['id']
+                new_debitur.nik = result['nik']
+                new_debitur.nama = result['nama']
+                new_debitur.tanggal_lahir = result['tanggal_lahir']
+                new_debitur.tempat_lahir = result['tempat_lahir']
+                new_debitur.alamat = result['alamat']
+                new_debitur.nama_ibu_kandung = result['nama_ibu_kandung']
+                new_debitur.nama_pasangan = result['nama_pasangan']
+                new_debitur.kolektibilitas = result['kolektibilitas']
+                new_debitur.keterangan = result['keterangan']
+                return (True, new_debitur)
             else:
-                False
+                return (False, None)
 
-    def insert_record(self, data:dict):
-        keys = list(data.keys())
-        values = list(data.values())
-        data_parameterized = ', '.join(['?'] * len(values))
+    def insert_record(self):
+        data_parameterized = ', '.join(['?'] * len(self._get_values()))
         query = f'''
-            INSERT INTO db_checker ({', '.join(keys)})
+            INSERT INTO db_checker ({', '.join(self.keys)})
             VALUES ({data_parameterized})
         '''
         with sqlite3.connect(self.db_path) as conn:
             try:
-                conn.execute(query, values)
+                conn.execute(query, self._get_values())
                 conn.commit()
             except sqlite3.IntegrityError as e:
                 conn.rollback()
+                print(e)
                 return (False, 'IntegrityError')
             except sqlite3.Error as e:
                 conn.rollback()
+                print(e)
                 return (False, 'UnexpectedError')
             else:
                 return (True, 'Success')
@@ -99,10 +122,10 @@ class debitur:
             else:
                 return res[0]
 
-    def edit_record(self, data:dict):
-        keys = list(data.keys())
-        values = list(data.values())
-        data_parameterized = ', '.join([f'{field} = : {field}' for field in keys])
+    def edit_record(self):
+        keys = [key for key in self.keys if key != 'id']
+        values = [val for val in self._get_values() if val != self.id]
+        data_parameterized = ', '.join([f'{field} = :{field}' for field in keys])
         parameterized_values = {field:data for field,data in zip(keys, values)}
         condition_clause = f'nik = :nik'
         query = f'''
@@ -114,10 +137,10 @@ class debitur:
             try:
                 conn.execute(query, parameterized_values)
                 conn.commit()
-            except sqlite3.Error:
-                print('something went wrong')
+            except sqlite3.Error as e:
+                print(query)
                 conn.rollback()
-                return (False, 'Something went wrong')
+                return (False, f'Something went wrong {e}')
             else:
                 return (True, 'Data berhasil di edit.')
 
@@ -238,7 +261,7 @@ class debitur:
             if key == 'nik':
                 data[key] = int(val)
             elif key == 'tanggal_lahir':
-                data[key] = self.parse_date(val)
+                data[key] = utils.parse_date(val)
             elif key == 'kolektibilitas':
                 data[key] = int(KOLEKTIBILITAS_TO_IDX[val])
             elif key == 'keterangan':
@@ -250,7 +273,7 @@ class debitur:
             if key == 'nik':
                 data[key] = str(val)
             elif key == 'tanggal_lahir':
-                data[key] = self.parse_date(val, False)
+                data[key] = utils.parse_date(val, False)
             elif key == 'kolektibilitas':
                 data[key] = str(IDX_TO_KOLEKTIBILITAS[val])
             elif key == 'keterangan':

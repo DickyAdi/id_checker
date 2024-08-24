@@ -20,8 +20,8 @@ class debitur_controller:
         self.debitur = debitur()
 
     def search_key(self, key:str):
-        res = self.debitur.search_record(key)
-        return res
+        res, data = self.debitur.search_record(key)
+        return (res, data)
     
     # def is_db_empty(self):
     #     return self.debitur.is_db_empty()
@@ -32,15 +32,19 @@ class debitur_controller:
     def insert(self, data:dict):
         last_num = 1 if self.debitur.is_db_empty() else self.debitur.get_total_records()+1
         unique_id = str(f'0-{last_num:04d}')
-        data['nik'] = unique_id
-        parsed_data = self.debitur.parse_data(data)
-        response = self.debitur.insert_record(parsed_data)
-        return response
+        data['id'] = unique_id
+        new_debitur = self.debitur.create_debitur_from_dict(data)
+        # parsed_data = self.debitur.parse_data(data)
+        # response = self.debitur.insert_record(parsed_data)
+        response, msg = new_debitur.insert_record()
+        return (response, msg)
     
     def edit(self, data:dict):
-        parsed_data = self.debitur.parse_data(data)
-        response = self.debitur.edit_record(parsed_data)
-        return response
+        # parsed_data = self.debitur.parse_data(data)
+        # response = self.debitur.edit_record(parsed_data)
+        new_debitur = self.debitur.create_debitur_from_dict(data)
+        response, msg = new_debitur.edit_record()
+        return (response, msg)
     
     def validate_on_submit(self, data:dict):
         all_valid = True
