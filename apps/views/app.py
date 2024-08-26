@@ -85,7 +85,7 @@ class App(tk.Tk):
 
         #tab 2
         csv_frame = notebook_frame(self.notebook, self.notebook, 'Input excel', padding=10)
-        self.file_upload = component.entry_input(csv_frame, 'csv','File CSV', row=0, col=0, required=True)
+        self.file_upload = component.entry_input(csv_frame, 'csv','File CSV', row=0, col=0, required=True, state='readonly')
         self.upload_button = ttk.Button(csv_frame, text='Upload')
         self.upload_button.grid(row=1, column=0, sticky='w')
 

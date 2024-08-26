@@ -46,10 +46,14 @@ class input_group:
 class entry_input(input_group):
     def __init__(self, parent, var_name: str, var_text, row, col, state='normal',required=True):
         self.entry = tk.StringVar()
+        self.state = state
         super().__init__(parent, var_name, var_text, row, col, state, required)
     def create_entry_var(self):
-        self.var = ttk.Entry(self.frame, textvariable=self.entry, state=self.state)
-        return self.var
+        if self.state == 'readonly':
+            var = ttk.Entry(self.frame, textvariable=self.entry, state=self.state, cursor='hand2')
+        else:
+            var = ttk.Entry(self.frame, textvariable=self.entry, state=self.state)
+        return var
 
 class combo_input(input_group):
     def __init__(self, parent, var_name: str, var_text, row, col, state='normal',required=True):
@@ -57,8 +61,8 @@ class combo_input(input_group):
         self.entry = tk.IntVar()
         super().__init__(parent, var_name, var_text, row, col, state, required)
     def create_entry_var(self):
-        self.var = ttk.Combobox(self.frame, values=self.combo_box_values, state=self.state)
-        return self.var
+        var = ttk.Combobox(self.frame, values=self.combo_box_values, state=self.state)
+        return var
     def disable_state(self):
         self.var.configure(state='disabled')
     def set_value(self, value):
@@ -72,8 +76,8 @@ class text_input(input_group):
     def __init__(self, parent, var_name: str, var_text, row, col, state='normal', required=True):
         super().__init__(parent, var_name, var_text, row, col, state, required)
     def create_entry_var(self):
-        self.var = tk.Text(self.frame, height=5, state=self.state)
-        return self.var
+        var = tk.Text(self.frame, height=5, state=self.state)
+        return var
     def place_widget(self):
         self.frame.grid(row=self.row, column=self.col, columnspan=2, sticky='ew')
     def set_value(self, value):

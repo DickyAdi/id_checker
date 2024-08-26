@@ -70,8 +70,8 @@ class debitur:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             result = conn.execute(query, param_value).fetchone()
-            result = self.unparse_data(dict(result))
             if result:
+                result = self.unparse_data(dict(result))
                 new_debitur = debitur()
                 new_debitur.id = result['id']
                 new_debitur.nik = result['nik']

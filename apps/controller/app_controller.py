@@ -1,24 +1,17 @@
-import sys
-import os
-from pathlib import Path
-import csv
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from datetime import datetime
-from typing import List
-import re
+from tkinter import messagebox
 
 from utils import utils
 from views.app import App
 from views.component import input_group
-from model.debitur import debitur
 from services.debitur_service import debitur_service
-from . import DATATABLE_BATCH, DATATABLE_LOADED_ROWS, IS_ALL_LOADED
+
+
+# possibilities to refactor by merging all of this class and method
+# to debitur_controller, so the controller would be more simple
 
 class app_controller:
     def __init__(self, app:App):
         self.app = app
-        # self.debitur = debitur()
         self.debitur_service = debitur_service()
 
     def check_handler(self):
@@ -62,9 +55,6 @@ class app_controller:
             var.disable_state()
 
     def edit_insert_handler(self):
-        # global IS_ALL_LOADED, DATATABLE_LOADED_ROWS
-        # values = [self.app.nik.get_value()] + [var.get_value() for var in self.app.form_control]
-        # var_name = [self.app.nik.var_name] + [var.var_name for var in self.app.form_control]
         data = {'nik' : self.app.nik.get_value(),
                 'nama' : self.app.nama.get_value(),
                 'tempat_lahir' : self.app.tempat_lahir.get_value(),
@@ -167,85 +157,3 @@ class app_controller:
     
     def check_keterangan(self, widget:input_group):
         pass
-
-
-
-    # def check_nik(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_nik(value):
-    #         widget.show_label_error('Digit NIK tidak sesuai atau data tidak boleh kosong.')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_nama(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_nama(value):
-    #         widget.show_label_error('Nama harus alphanumeric atau data tidak boleh kosong.')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_tanggal_lahir(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_tanggal_lahir(value):
-    #         widget.show_label_error('Data tidak boleh kosong atau format tidak sesuai.')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_tempat_lahir(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_tempat_lahir(value):
-    #         widget.show_label_error('Tempat lahir harus alphanumeric atau data tidak boleh kosong.')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_alamat(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_alamat(value):
-    #         widget.show_label_error('Data tidak boleh kosong.')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_nama_pasangan(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_nama_pasangan(value):
-    #         widget.show_label_error('Nama pasangan harus alphanumeric.')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_nama_ibu_kandung(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_nama_ibu_kandung(value):
-    #         widget.show_label_error('Nama ibu kandung harus alphanumeric dan tidak boleh kosong.')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_kolektibilitas(self, widget:input_group):
-    #     value = widget.var.get()
-    #     if not self.debitur.validate_kolektibilitas(value):
-    #         widget.show_label_error('Kolektibilitas harus diisi')
-    #     else:
-    #         widget.hide_label_error()
-    
-    # def check_keterangan(self, widget:input_group):
-    #     pass
-    
-    # def check_valid_alphanum(self, value, nullable=True):
-    #     pattern_name = re.compile(r"^[A-Za-z0-9.,'`\-\(\)]+$")
-    #     if len(value) == 0 and nullable:
-    #         return True
-    #     else:
-    #         if pattern_name.match(value):
-    #             return True
-    #         else:
-    #             return False
-    # def check_valid_nik(self, digits):
-    #     pattern = re.compile(r"%[0-9]$")
-    #     if pattern.match(digits):
-    #         return True
-    #     else:
-    #         return False
-    # def parse_date(self, date_value:str, db_format=True):
-    #     if db_format:
-    #         return datetime.strptime(date_value, '%d-%m-%Y').strftime('%Y-%m-%d')
-    #     else:
-    #         return datetime.strptime(date_value, '%Y-%m-%d').strftime('%d-%m-%Y')
