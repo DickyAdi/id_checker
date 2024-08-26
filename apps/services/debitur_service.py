@@ -21,3 +21,7 @@ class debitur_service:
         return self.debitur_controller.validate_on_submit(data)
     def edit_record_service(self, data:dict):
         return self.debitur_controller.edit(data)
+    def delete_record_service(self, key:str):
+        return self.debitur_controller.delete(key)
+    def dump_csv_service(self, possible_dir):
+        return self.debitur_controller.dump_to_csv(possible_dir)

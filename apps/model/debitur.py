@@ -107,7 +107,21 @@ class debitur:
                 return (False, 'UnexpectedError')
             else:
                 return (True, 'Success')
-
+    
+    def delete_record(self, key):
+        query = f'''
+            DELETE FROM db_checker
+            WHERE nik = ?
+        '''
+        with sqlite3.connect(self.db_path) as conn:
+            try:
+                conn.execute(query, (key,))
+                conn.commit()
+            except sqlite3.Error as e:
+                conn.rollback()
+                return False
+            else:
+                return True
 
     def get_total_records(self):
         query = f'''
@@ -143,6 +157,25 @@ class debitur:
                 return (False, f'Something went wrong {e}')
             else:
                 return (True, 'Data berhasil di edit.')
+    
+    def get_all_records(self, offset=0, limit=0):
+        if limit:
+            query = f'''
+                SELECT * FROM db_checker LIMIT {limit} OFFSET {offset}
+            '''
+        else:
+            query = f'''
+                SELECT * FROM db_checker
+            '''
+        with sqlite3.connect(self.db_path) as conn:
+            try:
+                conn.row_factory = sqlite3.Row
+                res = conn.execute(query).fetchall()
+                res = [self.unparse_data(dict(parsed)) for parsed in res]
+            except sqlite3.Error as e:
+                return (False, None)
+            else:
+                return (True, res)
 
 
     def is_db_empty(self):

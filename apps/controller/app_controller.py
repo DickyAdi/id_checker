@@ -10,7 +10,7 @@ import re
 
 from utils import utils
 from views.app import App
-from views.input_component import input_group
+from views.component import input_group
 from model.debitur import debitur
 from services.debitur_service import debitur_service
 from . import DATATABLE_BATCH, DATATABLE_LOADED_ROWS, IS_ALL_LOADED

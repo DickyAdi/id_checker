@@ -1,5 +1,6 @@
 import sys
 import os
+import csv
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
@@ -8,10 +9,10 @@ from typing import List
 import re
 from typing import TYPE_CHECKING
 
-
+from . import IS_ALL_LOADED, DATATABLE_BATCH, DATATABLE_LOADED_ROWS
 from model.debitur import debitur
-from views.input_component import input_group
-from views.app import App
+from views.component import input_group
+# from views.app import App
 
 
 class debitur_controller:
@@ -30,6 +31,7 @@ class debitur_controller:
     #     return self.debitur.get_total_records()
     
     def insert(self, data:dict):
+        global IS_ALL_LOADED, DATATABLE_LOADED_ROWS
         last_num = 1 if self.debitur.is_db_empty() else self.debitur.get_total_records()+1
         unique_id = str(f'0-{last_num:04d}')
         data['id'] = unique_id
@@ -37,6 +39,7 @@ class debitur_controller:
         # parsed_data = self.debitur.parse_data(data)
         # response = self.debitur.insert_record(parsed_data)
         response, msg = new_debitur.insert_record()
+        IS_ALL_LOADED = DATATABLE_LOADED_ROWS >= self.debitur.get_total_records()
         return (response, msg)
     
     def edit(self, data:dict):
@@ -52,6 +55,38 @@ class debitur_controller:
             if not self.debitur.validate(key, val):
                 all_valid = False
         return all_valid
+    
+    def delete(self, key:str):
+        global DATATABLE_LOADED_ROWS
+        res = self.debitur.delete_record(key)
+        if res:
+            if DATATABLE_LOADED_ROWS > 0:
+                DATATABLE_LOADED_ROWS -= 1
+            return (True, f'Data dengan NIK {key} telah di delete!')
+        else:
+            return (False, f'Terjadi error!')
+    
+    def dump_to_csv(self, possible_dir):
+        possible_dir = Path(possible_dir)
+        file_name = f'{datetime.now().strftime('%d-%m-%Y')}_database_dump.csv'
+        column_name = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung', 'nama_pasangan', 'kolektibilitas', 'keterangan']
+        if possible_dir.is_dir():
+            success, data = self.debitur.get_all_records()
+            if success:
+                try:
+                    with open(os.path.join(possible_dir, file_name), 'w', newline='') as csvfile:
+                        writer = csv.DictWriter(csvfile, fieldnames=column_name)
+                        writer.writeheader()
+                        writer.writerows(data)
+                except IOError as e:
+                    return (False, f'Error pada saat process dumping csv {e}')
+                except Exception as e:
+                    return (False, f'Unexpected error {e}')
+                else:
+                    return (True, f'Data berhasil di export dengan nama {file_name} di folder {possible_dir}')
+        else:
+            return (False, f'{str(possible_dir)} bukan merupakan sebuah direktori!')
+
 
     # def check_nik(self, widget:input_group):
     #     value = widget.var.get()
