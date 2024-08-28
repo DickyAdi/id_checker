@@ -7,7 +7,7 @@ from tkinter import messagebox, filedialog
 
 from model.debitur import debitur
 from views.component import datatable
-from . import IS_ALL_LOADED, DATATABLE_BATCH, DATATABLE_LOADED_ROWS
+import controller
 
 class datatable_controller:
     def __init__(self, datatable:datatable):
@@ -15,19 +15,17 @@ class datatable_controller:
         self.datatable = datatable
 
     def show_all_data(self):
-        global DATATABLE_BATCH, IS_ALL_LOADED, DATATABLE_LOADED_ROWS
-        if IS_ALL_LOADED:
+        if controller.IS_ALL_LOADED:
             return False
         else:
             total_record = self.model.get_total_records()
-            # fields = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_pasangan', 'nama_ibu_kandung', 'kolektibilitas', 'keterangan']
-            success, data = self.model.get_all_records(limit=DATATABLE_BATCH, offset=DATATABLE_LOADED_ROWS)
+            success, data = self.model.get_all_records(limit=controller.DATATABLE_BATCH, offset=controller.DATATABLE_LOADED_ROWS)
             if success and data:
                 for value in data:
                     values = list(value.values())
-                    DATATABLE_LOADED_ROWS += 1
+                    controller.DATATABLE_LOADED_ROWS += 1
                     self.datatable.datatable.insert('', tk.END, values=values)
-                IS_ALL_LOADED = DATATABLE_LOADED_ROWS >= total_record
+                controller.IS_ALL_LOADED = controller.DATATABLE_LOADED_ROWS >= total_record
                 return True
             else:
                 return False
@@ -46,8 +44,7 @@ class datatable_controller:
                     messagebox.showerror('Error', 'Database kosong!')
 
     def on_scroll_lazy_load(self, event):
-        global IS_ALL_LOADED
-        if self.datatable.datatable.yview()[1] >= .8 and not IS_ALL_LOADED:
+        if self.datatable.datatable.yview()[1] >= .8 and not controller.IS_ALL_LOADED:
             self.show_all_data()
 
     def datatable_row_click_handler(self, event):
@@ -57,7 +54,6 @@ class datatable_controller:
             self.datatable.delete_button.configure(state='normal')
 
     def datatable_delete_button_handler(self):
-        global DATATABLE_LOADED_ROWS
         selected = self.datatable.datatable.focus()
         selected_row_key = self.datatable.datatable.item(selected)['values'][1]
         selected_row_id = self.datatable.datatable.selection()[0]
@@ -66,8 +62,8 @@ class datatable_controller:
             if res:
                 res = self.model.delete_record(selected_row_key)
                 if res:
-                    if DATATABLE_LOADED_ROWS > 0:
-                        DATATABLE_LOADED_ROWS -= 1
+                    if controller.DATATABLE_LOADED_ROWS > 0:
+                        controller.DATATABLE_LOADED_ROWS -= 1
                     messagebox.showinfo('Success', f'Data dengan {selected_row_key} telah di hapus')
                     self.datatable.datatable.delete(selected_row_id)
                 else:
@@ -91,8 +87,9 @@ class datatable_controller:
         if possible_dir.is_dir():
             success, data = self.model.get_all_records()
             if success:
+                export_dir = os.path.join(possible_dir, file_name)
                 try:
-                    with open(os.path.join(possible_dir, file_name), 'w', newline='') as csvfile:
+                    with open(os.path.join(controller.abs_path, export_dir), 'w', newline='') as csvfile:
                         writer = csv.DictWriter(csvfile, fieldnames=column_name)
                         writer.writeheader()
                         writer.writerows(data)
@@ -104,13 +101,3 @@ class datatable_controller:
                     return (True, f'Data berhasil di export dengan nama {file_name} di folder {possible_dir}')
         else:
             return (False, f'{str(possible_dir)} bukan merupakan sebuah direktori!')
-
-    # def delete_row(self, key:str):
-    #     global DATATABLE_LOADED_ROWS
-    #     res = self.model.delete_record(key)
-    #     if res:
-    #         if DATATABLE_LOADED_ROWS > 0:
-    #             DATATABLE_LOADED_ROWS -= 1
-    #         return (True, f'Data dengan NIK {key} telah di delete!')
-    #     else:
-    #         return (False, f'Terjadi error!')

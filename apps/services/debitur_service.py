@@ -1,13 +1,11 @@
 from datetime import datetime
 import re
 
-# from controller.app_controller import app_controller
 from controller.debitur_controller import debitur_controller
 from model.debitur import debitur
 
 class debitur_service:
     def __init__(self):
-        # self.app_controller = app_controller()
         self.debitur_controller = debitur_controller()
     def find_record_by_key(self, key) -> debitur:
         return self.debitur_controller.search_key(key)
@@ -25,3 +23,5 @@ class debitur_service:
         return self.debitur_controller.delete(key)
     def dump_csv_service(self, possible_dir):
         return self.debitur_controller.dump_to_csv(possible_dir)
+    def print_pdf(self, key:str, path:str):
+        return self.debitur_controller.create_pdf(key, path)

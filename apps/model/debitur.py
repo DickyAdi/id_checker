@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import sys
+import csv
 from pathlib import Path
 from datetime import datetime
 from typing import List
@@ -62,7 +63,7 @@ class debitur:
         return new_debitur
 
 
-    def search_record(self, key:int):
+    def search_record(self, key:int, get=True):
         query = f'''
             SELECT * FROM db_checker where nik = :nik
         '''
@@ -70,22 +71,28 @@ class debitur:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             result = conn.execute(query, param_value).fetchone()
-            if result:
-                result = self.unparse_data(dict(result))
-                new_debitur = debitur()
-                new_debitur.id = result['id']
-                new_debitur.nik = result['nik']
-                new_debitur.nama = result['nama']
-                new_debitur.tanggal_lahir = result['tanggal_lahir']
-                new_debitur.tempat_lahir = result['tempat_lahir']
-                new_debitur.alamat = result['alamat']
-                new_debitur.nama_ibu_kandung = result['nama_ibu_kandung']
-                new_debitur.nama_pasangan = result['nama_pasangan']
-                new_debitur.kolektibilitas = result['kolektibilitas']
-                new_debitur.keterangan = result['keterangan']
-                return (True, new_debitur)
+            if get:
+                if result:
+                    result = self.unparse_data(dict(result))
+                    new_debitur = debitur()
+                    new_debitur.id = result['id']
+                    new_debitur.nik = result['nik']
+                    new_debitur.nama = result['nama']
+                    new_debitur.tanggal_lahir = result['tanggal_lahir']
+                    new_debitur.tempat_lahir = result['tempat_lahir']
+                    new_debitur.alamat = result['alamat']
+                    new_debitur.nama_ibu_kandung = result['nama_ibu_kandung']
+                    new_debitur.nama_pasangan = result['nama_pasangan']
+                    new_debitur.kolektibilitas = result['kolektibilitas']
+                    new_debitur.keterangan = result['keterangan']
+                    return (True, new_debitur)
+                else:
+                    return (False, None)
             else:
-                return (False, None)
+                if result:
+                    return True
+                else:
+                    return False
 
     def insert_record(self):
         data_parameterized = ', '.join(['?'] * len(self._get_values()))
@@ -107,6 +114,26 @@ class debitur:
                 return (False, 'UnexpectedError')
             else:
                 return (True, 'Success')
+    
+    def batch_insert_records(self, data):
+        keys = list(data[0].keys())
+        data = [tuple(val.values()) for val in data]
+        parameterized_values = ', '.join(['?'] * len(keys))
+        query = f'''
+            INSERT INTO db_checker ({', '.join(keys)}) VALUES ({parameterized_values})
+        '''
+        with sqlite3.connect(self.db_path) as conn:
+            try:
+                conn.executemany(query, data)
+                conn.commit()
+            except sqlite3.IntegrityError as e:
+                conn.rollback()
+                return (False, 'IntegrityError', str(e))
+            except sqlite3.Error as e:
+                conn.rollback()
+                return (False, 'UnexpectedError', str(e))
+            else:
+                return (True, 'Success', '')
     
     def delete_record(self, key):
         query = f'''
@@ -135,6 +162,24 @@ class debitur:
                 return 0
             else:
                 return res[0]
+    
+    def get_max_id(self):
+        query = f'''
+            SELECT id
+            FROM db_checker
+            ORDER BY CAST(SUBSTR(id, 3) as INTEGER) DESC
+            LIMIT 1
+        '''
+        with sqlite3.connect(self.db_path) as conn:
+            try:
+                res = conn.execute(query).fetchone()
+            except sqlite3.Error as e:
+                return None
+            else:
+                if res:
+                    return int(res[0].split('-')[1])
+                else:
+                    return None
 
     def edit_record(self):
         keys = [key for key in self.keys if key != 'id']
@@ -183,7 +228,7 @@ class debitur:
     
 
     def validate_nik(self, value):
-        if len(value) == 0 or (not len(value) == 16) and utils.check_valid_nik(value):
+        if len(value) == 0 or (len(value) != 16 or utils.check_valid_nik(value)):
             return False
         else:
             return True
@@ -258,36 +303,57 @@ class debitur:
             return self.validate_kolektibilitas(value)
         elif name == 'keterangan':
             return self.validate_keterangan(value)
-    
-    # def check_valid_alphanum(self, value, nullable=True):
-    #     pattern_name = re.compile(r"^[A-Za-z0-9.,'`\-\(\)]+$")
-    #     if len(value) == 0 and nullable:
-    #         return True
-    #     else:
-    #         if pattern_name.match(value):
-    #             return True
-    #         else:
-    #             return False
-    # def check_valid_nik(self, digits):
-    #     pattern = re.compile(r"%[0-9]$")
-    #     if pattern.match(digits):
-    #         return True
-    #     else:
-    #         return False
-    # def parse_date(self, date_value:str, db_format=True):
-    #     """Parse date input
 
-    #     Args:
-    #         date_value (str): Date value
-    #         db_format (bool, optional): If True, it will parse the value to database format, else it will parse the value to application format. Defaults to True.
+    def is_valid_csv_row(self, data:dict):
+        error_cols = []
+        for key, val in data.items():
+            is_valid = self.validate(key, val)
+            if not is_valid:
+                error_cols.append(key)
+        return error_cols
 
-    #     Returns:
-    #         str: parsed date
-    #     """
-    #     if db_format:
-    #         return datetime.strptime(date_value, '%d-%m-%Y').strftime('%Y-%m-%d')
-    #     else:
-    #         return datetime.strptime(date_value, '%Y-%m-%d').strftime('%d-%m-%Y')
+    def read_csv(self, file_path):
+        respond = {
+            'success' : None,
+            'msg' : None,
+            'total_rows' : None,
+            'validated' : None
+        }
+        total_rows = 0
+        last_id = 1 if self.is_db_empty() else self.get_max_id()+1
+        duplicated = set()
+        validated = []
+        with open(os.path.join(abs_path, file_path), 'r', encoding='utf-8-sig', newline='') as file:
+            header = file.readline()
+            delim = ',' if len(header.split(',')) > 1 else ';'
+            file.seek(0)
+            reader = csv.DictReader(file, delimiter=delim)
+            for i, row in enumerate(reader):
+                is_unique = not self.search_record(row['nik'], False)
+                not_duplicate = True if row['nik'] not in duplicated else False
+                if is_unique and not_duplicate:
+                    duplicated.add(row['nik'])
+                    not_valid_rows = self.is_valid_csv_row(row)
+                    if not_valid_rows:
+                        # return (False, f'Terdapat error di row {i+2} kolom {not_valid_rows}')
+                        respond['success'] = False
+                        respond['msg'] = f'Terdapat error di row {i+2} kolom {not_valid_rows}'
+                        return respond
+                    parsed_row = self.parse_data(row)
+                    parsed_row['id'] = str(f'0-{last_id:04d}')
+                    validated.append(parsed_row)
+                    last_id += 1
+                    total_rows += 1
+                else:
+                    # return (False, f"Data dengan NIK {row['nik']} di row {i+2} sudah terdaftar ataupun terdapat duplikat pada file!")
+                    respond['success'] = False
+                    respond['msg'] = f"Data dengan NIK {row['nik']} di row {i+2} sudah terdaftar ataupun terdapat duplikat pada file!"
+                    return respond
+            respond['success'] = True
+            respond['msg'] = f'Read success'
+            respond['total_rows'] = total_rows
+            respond['validated'] = validated
+            return respond
 
     def parse_data(self, data:dict):
         for key, val in data.items():

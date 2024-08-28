@@ -1,3 +1,4 @@
+from pathlib import Path
 from datetime import datetime
 import re
 
@@ -30,3 +31,13 @@ def parse_date(date_value:str, db_format=True):
         return datetime.strptime(date_value, '%d-%m-%Y').strftime('%Y-%m-%d')
     else:
         return datetime.strptime(date_value, '%Y-%m-%d').strftime('%d-%m-%Y')
+
+def is_csv(file_path):
+    if file_path:
+        possible_path = Path(file_path)
+        if possible_path.suffix == '.csv':
+            return True
+        else:
+            return False
+    else:
+        return False

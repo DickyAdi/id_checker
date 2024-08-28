@@ -1,4 +1,4 @@
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 
 from utils import utils
 from views.app import App
@@ -93,9 +93,21 @@ class app_controller:
             else:
                 messagebox.showerror('Invalid input', 'Cek ulang data!')
 
+    def print_button_handler(self):
+        possible_path = filedialog.askdirectory()
+        key = self.app.nik.get_value()
+        if possible_path:
+            res, msg = self.debitur_service.print_pdf(key, possible_path)
+            if res:
+                messagebox.showinfo('Success', msg)
+            else:
+                messagebox.showerror('Failed', msg)
+            self.app.print_button.config(state='disabled')
+
+
     def check_nik(self, widget:input_group):
         value = widget.var.get()
-        if len(value) == 0 or (not len(value) == 16) and utils.check_valid_nik(value):
+        if len(value) == 0 or (len(value) != 16 or utils.check_valid_nik(value)):
             widget.show_label_error('Digit NIK tidak sesuai atau data tidak boleh kosong.')
         else:
             widget.hide_label_error()

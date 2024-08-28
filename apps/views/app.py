@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 from . import component
 from controller.datatable_controller import datatable_controller
+from controller.import_controller import import_controller
 
 if getattr(sys, 'frozen', False):
     abs_path = sys._MEIPASS
@@ -24,8 +25,6 @@ class App(tk.Tk):
     def __init__(self, width, height, app_controller:'app_controller'):
         super().__init__()
         self.app_controller = app_controller(self)
-        # self.debitur_controller = debitur_controller(self)
-        # self.datatable_controller = datatable_controller(self.datatable)
         width = width
         height = height
         screen_width = self.winfo_screenwidth()
@@ -77,7 +76,7 @@ class App(tk.Tk):
         empty_pad.grid(row=0, column=1, sticky='ew')
         self.edit_button = ttk.Button(form_button_group, text='Edit', state='disabled', command=self.app_controller.edit_insert_handler)
         self.edit_button.grid(row=0, column=2, sticky='ew', pady=4)
-        self.print_button = ttk.Button(form_button_group, text='Print', state='disabled')
+        self.print_button = ttk.Button(form_button_group, text='Print', state='disabled', command=self.app_controller.print_button_handler)
         self.print_button.grid(row=1, column=0, columnspan=3, sticky='ew')
 
         form_frame.columnconfigure(0, weight=1)
@@ -86,7 +85,11 @@ class App(tk.Tk):
         #tab 2
         csv_frame = notebook_frame(self.notebook, self.notebook, 'Input excel', padding=10)
         self.file_upload = component.entry_input(csv_frame, 'csv','File CSV', row=0, col=0, required=True, state='readonly')
-        self.upload_button = ttk.Button(csv_frame, text='Upload')
+        self.upload_button = ttk.Button(csv_frame, text='Upload', state='disabled')
+        self.import_controller = import_controller(self.file_upload, self.upload_button)
+        # self.upload_button.configure(command=self.import_controller.upload_file_handler)
+        self.file_upload.var.bind('<Button-1>', lambda event : self.import_controller.upload_file_handler())
+        self.upload_button.configure(command=self.import_controller.upload_button_handler)
         self.upload_button.grid(row=1, column=0, sticky='w')
 
 
