@@ -17,30 +17,33 @@ class app_controller:
     def check_handler(self):
         if self.app.check_button['text'] != 'Cancel edit':
             key = self.app.nik.var.get()
-            res, data = self.debitur_service.find_record_by_key(key)
-            if res:
-                [var.enable_state() for var in self.app.form_control]
-                self.app.edit_button.configure(state='normal')
-                self.app.print_button.configure(state='normal')
-                self.app.check_button.configure(text='Cancel edit')
-                self.app.nik.disable_state()
-                self.app.nik.set_value(data.nik)
-                self.app.nama.set_value(data.nama)
-                self.app.tanggal_lahir.set_value(data.tanggal_lahir)
-                self.app.tempat_lahir.set_value(data.tempat_lahir)
-                self.app.alamat.set_value(data.alamat)
-                self.app.nama_pasangan.set_value(data.nama_pasangan)
-                self.app.nama_ibu_kandung.set_value(data.nama_ibu_kandung)
-                self.app.kolektibilitas.set_value(data.kolektibilitas)
-                self.app.keterangan.set_value(data.keterangan)
-            else:
-                response = messagebox.askquestion('Question', 'Data tidak terdaftar, input baru?')
-                if response == 'yes':
-                    self.app.edit_button.configure(text='Insert', state='normal')
+            if self.debitur_service.validate_on_submit_service({'nik' : key}):
+                res, data = self.debitur_service.find_record_by_key(key)
+                if res:
                     [var.enable_state() for var in self.app.form_control]
+                    self.app.edit_button.configure(state='normal')
+                    self.app.print_button.configure(state='normal')
+                    self.app.check_button.configure(text='Cancel edit')
+                    self.app.nik.disable_state()
+                    self.app.nik.set_value(data.nik)
+                    self.app.nama.set_value(data.nama)
+                    self.app.tanggal_lahir.set_value(data.tanggal_lahir)
+                    self.app.tempat_lahir.set_value(data.tempat_lahir)
+                    self.app.alamat.set_value(data.alamat)
+                    self.app.nama_pasangan.set_value(data.nama_pasangan)
+                    self.app.nama_ibu_kandung.set_value(data.nama_ibu_kandung)
+                    self.app.kolektibilitas.set_value(data.kolektibilitas)
+                    self.app.keterangan.set_value(data.keterangan)
                 else:
-                    self.app.edit_button.configure(state='disabled')
-                    self.clear_all_input()
+                    response = messagebox.askquestion('Question', 'Data tidak terdaftar, input baru?')
+                    if response == 'yes':
+                        self.app.edit_button.configure(text='Insert', state='normal')
+                        [var.enable_state() for var in self.app.form_control]
+                    else:
+                        self.app.edit_button.configure(state='disabled')
+                        self.clear_all_input()
+            else:
+                messagebox.showerror('Error', 'Format NIK tidak valid!')
         else:
             self.clear_all_input()
             self.app.nik.enable_state()

@@ -74,7 +74,7 @@ class datatable_controller:
             res = messagebox.askokcancel('Dump?', 'Export semua data di database?')
             if res:
                 possible_dir = filedialog.askdirectory()
-                success, msg = self.dump_csv_service(possible_dir)
+                success, msg = self.dump_to_csv(possible_dir)
                 if success:
                     messagebox.showinfo('Success', msg)
                 else:

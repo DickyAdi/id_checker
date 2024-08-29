@@ -49,7 +49,7 @@ class debitur_controller:
 
     def create_pdf(self, key:str, path:str):
         possible_path = Path(path)
-        data = self.debitur.search_record(key)
+        status, data = self.debitur.search_record(key)
         html_code = f"""
         <!DOCTYPE html>
         <html lang='en'>
@@ -85,7 +85,7 @@ class debitur_controller:
             </head>
             <body>
                 <img 
-                src='{os.path.join(controller.abs_path,'./assets/img/kop_surat.jpg')}'
+                src='{os.path.join(controller.abs_path,'apps/assets/img/kop_surat.jpg')}'
                 alt='Corporate logo'
                 style='display:inline-block; width:auto; height:auto; text-align:right;'
                 />
@@ -153,7 +153,7 @@ class debitur_controller:
         </html>
         """
         if possible_path.is_dir():
-            if data:
+            if status:
                 file_name = os.path.join(possible_path, f'{data.nama}_{data.nik}_{datetime.now().strftime("%d-%m-%Y")}.pdf')
                 try:
                     with open(file_name, 'w+b') as output_file:
