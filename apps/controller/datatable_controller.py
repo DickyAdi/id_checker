@@ -82,7 +82,7 @@ class datatable_controller:
 
     def dump_to_csv(self, possible_dir):
         possible_dir = Path(possible_dir)
-        file_name = f'{datetime.now().strftime('%d-%m-%Y')}_database_dump.csv'
+        file_name = f"{datetime.now().strftime('%d-%m-%Y')}_database_dump.csv"
         column_name = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung', 'nama_pasangan', 'kolektibilitas', 'keterangan']
         if possible_dir.is_dir():
             success, data = self.model.get_all_records()

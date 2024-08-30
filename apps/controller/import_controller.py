@@ -38,6 +38,8 @@ class import_controller:
                         total_inserted = self.model.get_total_records()
                         controller.IS_ALL_LOADED = controller.DATATABLE_LOADED_ROWS >= total_inserted
                         messagebox.showinfo('Succeed', f"{result['total_rows']} data berhasil di insert!")
+                        self.file_input.clear_value()
+                        self.upload_button.config(state='disabled')
                     else:
                         if flag == 'IntegrityError':
                             messagebox.showerror('Failed', f'Terdapat data duplikat di dalam database.\nDetail: {msg}')
