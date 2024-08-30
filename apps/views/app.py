@@ -87,7 +87,6 @@ class App(tk.Tk):
         self.file_upload = component.entry_input(csv_frame, 'csv','File CSV', row=0, col=0, required=True, state='readonly')
         self.upload_button = ttk.Button(csv_frame, text='Upload', state='disabled')
         self.import_controller = import_controller(self.file_upload, self.upload_button)
-        # self.upload_button.configure(command=self.import_controller.upload_file_handler)
         self.file_upload.var.bind('<Button-1>', lambda event : self.import_controller.upload_file_handler())
         self.upload_button.configure(command=self.import_controller.upload_button_handler)
         self.upload_button.grid(row=1, column=0, sticky='w')
