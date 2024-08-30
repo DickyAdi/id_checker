@@ -6,7 +6,6 @@ from xhtml2pdf import pisa
 
 import controller
 from model.debitur import debitur
-from views.component import input_group
 
 class debitur_controller:
     def __init__(self):

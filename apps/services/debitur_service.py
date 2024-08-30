@@ -1,6 +1,3 @@
-from datetime import datetime
-import re
-
 from controller.debitur_controller import debitur_controller
 from model.debitur import debitur
 

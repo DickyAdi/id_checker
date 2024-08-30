@@ -2,10 +2,6 @@ import os
 import sqlite3
 import sys
 import csv
-from pathlib import Path
-from datetime import datetime
-from typing import List
-import re
 
 from utils import utils
 

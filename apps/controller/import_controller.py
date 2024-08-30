@@ -1,5 +1,3 @@
-import os
-import csv
 from typing import TYPE_CHECKING
 from tkinter.ttk import Button
 from tkinter import filedialog, messagebox
