@@ -84,7 +84,7 @@ class debitur_controller:
             </head>
             <body>
                 <img 
-                src='{os.path.join(controller.abs_path,'/assets/img/kop_surat.jpg')}'
+                src='{os.path.join(controller.abs_path,'assets/img/kop_surat.jpg')}'
                 alt='Corporate logo'
                 style='display:inline-block; width:auto; height:auto; text-align:right;'
                 />
