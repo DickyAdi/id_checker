@@ -22,3 +22,5 @@ class debitur_service:
         return self.debitur_controller.dump_to_csv(possible_dir)
     def print_pdf(self, key:str, path:str):
         return self.debitur_controller.create_pdf(key, path)
+    def get_new_cif(self):
+        return self.debitur_controller.get_new_cif()

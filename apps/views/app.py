@@ -32,9 +32,9 @@ class App(tk.Tk):
         self.minsize(width, height)
         self.title("ID Checker")
 
-        self.head_frame = ttk.Frame(self, padding=5)
-        self.corporate_logo = image_label(self.head_frame, './assets/img/logo_BJA_PNG(resize).png', 0, 0)
-        # self.corporate_logo = image_label(self.head_frame, 'apps/assets/img/logo_BJA_PNG(resize).png', 0, 0) #for macOS
+        self.head_frame = ttk.Frame(self, padding=10)
+        # self.corporate_logo = image_label(self.head_frame, './assets/img/logo_BJA_PNG(resize).png', 0, 0)
+        self.corporate_logo = image_label(self.head_frame, 'apps/assets/img/logo_BJA_PNG(resize).png', 0, 0) #for macOS
         self.head_frame.grid(row=0, column=0, sticky='nsew')
 
         #tab 1
@@ -43,6 +43,7 @@ class App(tk.Tk):
 
         #form
         self.nik = component.entry_input(form_frame, 'nik', 'NIK', 2, 0, required=True)
+        self.id = component.entry_input(form_frame, 'id', 'CIF', 2, 1, state='disabled', required=False)
         self.nama = component.entry_input(form_frame, 'nama', 'Nama', 3, 0, state='disabled', required=True)
         self.tanggal_lahir = component.entry_input(form_frame, 'tanggal_lahir', 'Tanggal lahir', 4, 0,state='disabled', required=True)
         self.tempat_lahir = component.entry_input(form_frame, 'tempat_lahir', 'Tempat lahir', 4, 1, state='disabled', required=True)
@@ -51,7 +52,9 @@ class App(tk.Tk):
         self.nama_pasangan = component.entry_input(form_frame, 'nama_pasangan', 'Nama pasangan', 6, 1,  state='disabled', required=False)
         self.kolektibilitas = component.combo_input(form_frame, 'kolektibilitas', 'Kolektibilitas', 7, 0,  state='disabled', required=True)
         self.keterangan = component.text_input(form_frame, 'keterangan', 'Keterangan', 8, 0,  state='disabled', required=False)
-        self.form_control = [self.nama, self.tanggal_lahir, self.tempat_lahir, self.alamat, self.nama_ibu_kandung, self.nama_pasangan, self.kolektibilitas, self.keterangan]
+        self.created_at = component.entry_input(form_frame, 'created_at', 'Created at', 9, 0,  state='disabled', required=False)
+        self.last_edit = component.entry_input(form_frame, 'last_edit', 'Last edit', 9, 1,  state='disabled', required=False)
+        self.form_control = [self.id, self.nama, self.tanggal_lahir, self.tempat_lahir, self.alamat, self.nama_ibu_kandung, self.nama_pasangan, self.kolektibilitas, self.keterangan, self.created_at, self.last_edit]
         self.nik.var.bind('<FocusOut>', lambda event, widget=self.nik : self.app_controller.check_nik(widget))
         self.nama.var.bind('<FocusOut>', lambda event, widget=self.nama : self.app_controller.check_nama(widget))
         self.tanggal_lahir.var.bind('<FocusOut>', lambda event, widget=self.tanggal_lahir : self.app_controller.check_tanggal_lahir(widget))
@@ -67,7 +70,7 @@ class App(tk.Tk):
         form_button_group.columnconfigure(0, weight=1)
         form_button_group.columnconfigure(1, weight=0)
         form_button_group.columnconfigure(2, weight=1)
-        form_button_group.grid(row=9, column=0, columnspan=2, sticky='ew')
+        form_button_group.grid(row=10, column=0, columnspan=2, sticky='ew')
         self.check_button = ttk.Button(form_button_group, text='Check', command=self.app_controller.check_handler)
         self.check_button.grid(row=0, column=0, sticky='ew', pady=4)
         empty_pad = ttk.Frame(form_button_group, width=4)

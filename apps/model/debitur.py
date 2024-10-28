@@ -36,11 +36,13 @@ class debitur:
         self.nama_pasangan:str = ''
         self.kolektibilitas:int = None
         self.keterangan:str = ''
-        self.keys = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung', 'nama_pasangan', 'kolektibilitas', 'keterangan']
+        self.created_at:str = ''
+        self.last_edit:str = ''
+        self.keys = ['id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung', 'nama_pasangan', 'kolektibilitas', 'keterangan', 'created_at', 'last_edit']
         self.db_path = os.path.join(root, DB) if db_name == None else os.path.join(root, db_name)
 
     def _get_values(self):
-        values = [self.id, self.nik, self.nama, self.tanggal_lahir, self.tempat_lahir, self.alamat, self.nama_ibu_kandung, self.nama_pasangan, self.kolektibilitas, self.keterangan]
+        values = [self.id, self.nik, self.nama, self.tanggal_lahir, self.tempat_lahir, self.alamat, self.nama_ibu_kandung, self.nama_pasangan, self.kolektibilitas, self.keterangan, self.created_at, self.last_edit]
         return values
 
     def create_debitur_from_dict(self, data:dict):
@@ -56,6 +58,8 @@ class debitur:
         new_debitur.nama_pasangan = parsed_data['nama_pasangan']
         new_debitur.kolektibilitas = parsed_data['kolektibilitas']
         new_debitur.keterangan = parsed_data['keterangan']
+        new_debitur.created_at = parsed_data['created_at']
+        new_debitur.last_edit = parsed_data['last_edit']
         return new_debitur
 
 
@@ -81,6 +85,8 @@ class debitur:
                     new_debitur.nama_pasangan = result['nama_pasangan']
                     new_debitur.kolektibilitas = result['kolektibilitas']
                     new_debitur.keterangan = result['keterangan']
+                    new_debitur.created_at = result['created_at']
+                    new_debitur.last_edit = result['last_edit']
                     return (True, new_debitur)
                 else:
                     return (False, None)
@@ -222,6 +228,13 @@ class debitur:
     def is_db_empty(self):
         return self.get_total_records() == 0
     
+    def validate_id(self, value):
+        id = int(value.split('-')[1])
+        last_id = self.get_max_id()+1 if self.get_max_id() else 1
+        if id == last_id:
+            return True
+        else:
+            return False
 
     def validate_nik(self, value):
         if len(value) == 0 or (len(value) != 16 or utils.check_valid_nik(value)):
@@ -299,6 +312,12 @@ class debitur:
             return self.validate_kolektibilitas(value)
         elif name == 'keterangan':
             return self.validate_keterangan(value)
+        elif name == 'id':
+            return True
+        elif name == 'created_at':
+            return True
+        elif name == 'last_edit':
+            return True
 
     def is_valid_csv_row(self, data:dict):
         error_cols = []
@@ -355,7 +374,7 @@ class debitur:
         for key, val in data.items():
             if key == 'nik':
                 data[key] = int(val)
-            elif key == 'tanggal_lahir':
+            elif key in ['tanggal_lahir']:
                 data[key] = utils.parse_date(val)
             elif key == 'kolektibilitas':
                 data[key] = int(KOLEKTIBILITAS_TO_IDX[val])
@@ -367,7 +386,7 @@ class debitur:
         for key, val in data.items():
             if key == 'nik':
                 data[key] = str(val)
-            elif key == 'tanggal_lahir':
+            elif key in ['tanggal_lahir']:
                 data[key] = utils.parse_date(val, False)
             elif key == 'kolektibilitas':
                 data[key] = str(IDX_TO_KOLEKTIBILITAS[val])

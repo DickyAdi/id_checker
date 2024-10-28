@@ -41,3 +41,17 @@ def is_csv(file_path):
             return False
     else:
         return False
+
+def get_today(db_format=True):
+    """Get todays date
+
+    Args:
+        db_format (bool, optional): If True, it will return a parsed value to database format, else it will return the value to application format. Defaults to True.
+
+    Returns:
+        str: parsed date
+    """
+    if db_format:
+        return datetime.now().strftime("%Y-%m-%d:%H.%M.%S")
+    else:
+        return datetime.now().strftime("%d-%m-%Y:%H.%M.%S")

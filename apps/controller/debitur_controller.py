@@ -15,10 +15,12 @@ class debitur_controller:
         res, data = self.debitur.search_record(key)
         return (res, data)
     
-    def insert(self, data:dict):
+    def get_new_cif(self):
         last_num = 1 if self.debitur.is_db_empty() else self.debitur.get_max_id()+1
         unique_id = str(f'0-{last_num:04d}')
-        data['id'] = unique_id
+        return unique_id
+    
+    def insert(self, data:dict):
         new_debitur = self.debitur.create_debitur_from_dict(data)
         response, msg = new_debitur.insert_record()
         total_data = self.debitur.get_total_records()

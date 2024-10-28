@@ -76,7 +76,7 @@ class text_input(input_group):
     def __init__(self, parent, var_name: str, var_text, row, col, state='normal', required=True):
         super().__init__(parent, var_name, var_text, row, col, state, required)
     def create_entry_var(self):
-        var = tk.Text(self.frame, height=5, state=self.state)
+        var = tk.Text(self.frame, height=2, state=self.state)
         return var
     def place_widget(self):
         self.frame.grid(row=self.row, column=self.col, columnspan=2, sticky='ew')
@@ -96,7 +96,7 @@ class datatable:
         self.frame.rowconfigure(1, weight=1)
         self.frame.grid(row=0, column=0, sticky='nsew')
         self.label = ttk.Label(self.frame, text='Datatable')
-        self.data_cols = ('id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung','nama_pasangan', 'kolektibilitas', 'keterangan')
+        self.data_cols = ('id', 'nik', 'nama', 'tanggal_lahir', 'tempat_lahir', 'alamat', 'nama_ibu_kandung','nama_pasangan', 'kolektibilitas', 'keterangan', 'created_at', 'last_edit')
         self.datatable = ttk.Treeview(self.frame, columns=self.data_cols, show='headings')
         self.datatable.heading('id', text='ID-CIF')
         self.datatable.heading('nik', text='NIK')
@@ -108,6 +108,8 @@ class datatable:
         self.datatable.heading('nama_pasangan', text='Nama pasangan')
         self.datatable.heading('kolektibilitas', text='Kolektibilitas')
         self.datatable.heading('keterangan', text='Keterangan')
+        self.datatable.heading('created_at', text='Created at')
+        self.datatable.heading('last_edit', text='Last edit')
         self.vertical_sb = ttk.Scrollbar(self.frame, orient='vertical', command=self.datatable.yview)
         self.horizontal_sb = ttk.Scrollbar(self.frame, orient='horizontal', command=self.datatable.xview)
         self.datatable.configure(xscrollcommand=self.horizontal_sb.set, yscrollcommand=self.vertical_sb.set)

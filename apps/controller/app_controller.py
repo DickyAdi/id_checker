@@ -25,6 +25,7 @@ class app_controller:
                     self.app.print_button.configure(state='normal')
                     self.app.check_button.configure(text='Cancel edit')
                     self.app.nik.disable_state()
+                    self.app.id.set_value(data.id)
                     self.app.nik.set_value(data.nik)
                     self.app.nama.set_value(data.nama)
                     self.app.tanggal_lahir.set_value(data.tanggal_lahir)
@@ -34,17 +35,29 @@ class app_controller:
                     self.app.nama_ibu_kandung.set_value(data.nama_ibu_kandung)
                     self.app.kolektibilitas.set_value(data.kolektibilitas)
                     self.app.keterangan.set_value(data.keterangan)
+                    self.app.created_at.set_value(data.created_at)
+                    self.app.last_edit.set_value(data.last_edit if data.last_edit else '')
+                    self.app.created_at.disable_state()
+                    self.app.last_edit.disable_state()
+
                 else:
                     response = messagebox.askquestion('Question', 'Data tidak terdaftar, input baru?')
                     if response == 'yes':
                         self.app.edit_button.configure(text='Insert', state='normal')
                         [var.enable_state() for var in self.app.form_control]
+                        self.app.id.disable_state()
+                        self.app.created_at.disable_state()
+                        self.app.last_edit.disable_state()
+                        self.app.id.set_value(self.debitur_service.get_new_cif())
+                        self.app.created_at.set_value(utils.get_today(False))
                     else:
                         self.app.edit_button.configure(state='disabled')
                         self.clear_all_input()
             else:
                 messagebox.showerror('Error', 'Format NIK tidak valid!')
         else:
+            self.app.created_at.enable_state()
+            self.app.last_edit.enable_state()
             self.clear_all_input()
             self.app.nik.enable_state()
             self.app.check_button.configure(text='Check')
@@ -58,7 +71,8 @@ class app_controller:
             var.disable_state()
 
     def edit_insert_handler(self):
-        data = {'nik' : self.app.nik.get_value(),
+        data = {'id' : self.app.id.get_value(),
+                'nik' : self.app.nik.get_value(),
                 'nama' : self.app.nama.get_value(),
                 'tempat_lahir' : self.app.tempat_lahir.get_value(),
                 'tanggal_lahir' : self.app.tanggal_lahir.get_value(),
@@ -66,26 +80,35 @@ class app_controller:
                 'nama_ibu_kandung' : self.app.nama_ibu_kandung.get_value(),
                 'kolektibilitas' : self.app.kolektibilitas.get_value(),
                 'nama_pasangan' : self.app.nama_pasangan.get_value(),
-                'keterangan' : self.app.keterangan.get_value()
+                'keterangan' : self.app.keterangan.get_value(),
+                'created_at' : self.app.created_at.get_value(),
+                'last_edit' : self.app.last_edit.get_value()
         }
         if self.app.edit_button['text'] == 'Insert':
             if self.debitur_service.validate_on_submit_service(data):
+                # data['created_at'] = datetime.now().date()
                 response, msg = self.debitur_service.insert_to_db(data)
                 if response:
-                    messagebox.showinfo('Success', 'Data sukses di input!')
+                    self.app.id.enable_state()
                     self.clear_all_input()
+                    messagebox.showinfo('Success', 'Data sukses di input!')
                     self.app.edit_button.configure(text='Edit', state='disabled')
                 else:
                     if msg == 'IntegrityError':
                         messagebox.showerror('Failed', 'NIK sudah terdaftar!')
                     elif msg == 'UnexpectedError':
                         messagebox.showerror('Failed', 'Unexpected Error!')
+                    self.app.id.enable_state()
                     self.clear_all_input()
         elif self.app.edit_button['text'] == 'Edit':
             if self.debitur_service.validate_on_submit_service(data):
+                data['last_edit'] = utils.get_today(False)
                 response, msg = self.debitur_service.edit_record_service(data)
                 if response:
                     messagebox.showinfo('Success', msg)
+                    self.app.id.enable_state()
+                    self.app.last_edit.enable_state()
+                    self.app.created_at.enable_state()
                     self.clear_all_input()
                     self.app.nik.enable_state()
                     self.app.edit_button.configure(state='disabled')
