@@ -199,7 +199,6 @@ class debitur:
                 conn.execute(query, parameterized_values)
                 conn.commit()
             except sqlite3.Error as e:
-                print(query)
                 conn.rollback()
                 return (False, f'Something went wrong {e}')
             else:
@@ -224,6 +223,33 @@ class debitur:
             else:
                 return (True, res)
 
+    def is_prepopulated(self):
+        query = '''
+            SELECT is_prepopulated FROM prepopulated_table
+        '''
+        with sqlite3.connect(self.db_path) as conn:
+            try:
+                res = conn.execute(query).fetchone()[0]
+            except sqlite3.Error as e:
+                print(e)
+                return (False, None)
+            else:
+                return (True, bool(res))
+
+    def post_prepopulated(self):
+        query = '''
+            UPDATE prepopulated_table
+            SET is_prepopulated =: 0
+        '''
+        with sqlite3.connect(self.db_path) as conn:
+            try:
+                conn.execute(query)
+                conn.commit()
+            except sqlite3.Error as e:
+                conn.rollback()
+                return (False, f'Something went wrong {e}')
+            else:
+                return (True, 'Post prepopulated!')
 
     def is_db_empty(self):
         return self.get_total_records() == 0
@@ -338,6 +364,7 @@ class debitur:
         last_id = 1 if self.is_db_empty() else self.get_max_id()+1
         duplicated = set()
         validated = []
+        is_prepopulated = self.is_prepopulated()
         with open(os.path.join(abs_path, file_path), 'r', encoding='utf-8-sig', newline='') as file:
             header = file.readline()
             delim = ',' if len(header.split(',')) > 1 else ';'
@@ -350,12 +377,13 @@ class debitur:
                     duplicated.add(row['nik'])
                     not_valid_rows = self.is_valid_csv_row(row)
                     if not_valid_rows:
-                        # return (False, f'Terdapat error di row {i+2} kolom {not_valid_rows}')
                         respond['success'] = False
                         respond['msg'] = f'Terdapat error di row {i+2} kolom {not_valid_rows}'
                         return respond
                     parsed_row = self.parse_data(row)
                     parsed_row['id'] = str(f'0-{last_id:04d}')
+                    if is_prepopulated:
+                        parsed_row['created_at'] = utils.get_today(True)
                     validated.append(parsed_row)
                     last_id += 1
                     total_rows += 1
@@ -374,8 +402,11 @@ class debitur:
         for key, val in data.items():
             if key == 'nik':
                 data[key] = int(val)
-            elif key in ['tanggal_lahir']:
-                data[key] = utils.parse_date(val)
+            elif key in ['tanggal_lahir', 'created_at', 'last_edit']:
+                if key == 'last_edit' and data[key] == '':
+                    pass
+                else:
+                    data[key] = utils.parse_date(val)
             elif key == 'kolektibilitas':
                 data[key] = int(KOLEKTIBILITAS_TO_IDX[val])
             elif key == 'keterangan':
@@ -386,8 +417,11 @@ class debitur:
         for key, val in data.items():
             if key == 'nik':
                 data[key] = str(val)
-            elif key in ['tanggal_lahir']:
-                data[key] = utils.parse_date(val, False)
+            elif key in ['tanggal_lahir', 'created_at', 'last_edit']:
+                if key == 'last_edit' and data[key] == '':
+                    pass
+                else:
+                    data[key] = utils.parse_date(val, False)
             elif key == 'kolektibilitas':
                 data[key] = str(IDX_TO_KOLEKTIBILITAS[val])
             elif key == 'keterangan':

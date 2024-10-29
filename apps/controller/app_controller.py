@@ -90,6 +90,8 @@ class app_controller:
                 response, msg = self.debitur_service.insert_to_db(data)
                 if response:
                     self.app.id.enable_state()
+                    self.app.created_at.enable_state()
+                    self.app.last_edit.enable_state()
                     self.clear_all_input()
                     messagebox.showinfo('Success', 'Data sukses di input!')
                     self.app.edit_button.configure(text='Edit', state='disabled')

@@ -52,6 +52,6 @@ def get_today(db_format=True):
         str: parsed date
     """
     if db_format:
-        return datetime.now().strftime("%Y-%m-%d:%H.%M.%S")
+        return datetime.now().strftime("%Y-%m-%d")
     else:
-        return datetime.now().strftime("%d-%m-%Y:%H.%M.%S")
+        return datetime.now().strftime("%d-%m-%Y")
