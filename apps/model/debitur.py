@@ -232,14 +232,14 @@ class debitur:
                 res = conn.execute(query).fetchone()[0]
             except sqlite3.Error as e:
                 print(e)
-                return (False, None)
+                return None
             else:
-                return (True, bool(res))
+                return bool(res)
 
     def post_prepopulated(self):
         query = '''
             UPDATE prepopulated_table
-            SET is_prepopulated =: 0
+            SET is_prepopulated = 1
         '''
         with sqlite3.connect(self.db_path) as conn:
             try:
@@ -247,9 +247,10 @@ class debitur:
                 conn.commit()
             except sqlite3.Error as e:
                 conn.rollback()
-                return (False, f'Something went wrong {e}')
+                print(e)
+                return False
             else:
-                return (True, 'Post prepopulated!')
+                return True
 
     def is_db_empty(self):
         return self.get_total_records() == 0
@@ -392,6 +393,8 @@ class debitur:
                     respond['success'] = False
                     respond['msg'] = f"Data dengan NIK {row['nik']} di row {i+2} sudah terdaftar ataupun terdapat duplikat pada file!"
                     return respond
+            if not is_prepopulated:
+                self.post_prepopulated()
             respond['success'] = True
             respond['msg'] = f'Read success'
             respond['total_rows'] = total_rows
@@ -403,8 +406,8 @@ class debitur:
             if key == 'nik':
                 data[key] = int(val)
             elif key in ['tanggal_lahir', 'created_at', 'last_edit']:
-                if key == 'last_edit' and data[key] == '':
-                    pass
+                if key == 'last_edit' and data[key] in [None, '']:
+                    continue
                 else:
                     data[key] = utils.parse_date(val)
             elif key == 'kolektibilitas':
@@ -418,8 +421,8 @@ class debitur:
             if key == 'nik':
                 data[key] = str(val)
             elif key in ['tanggal_lahir', 'created_at', 'last_edit']:
-                if key == 'last_edit' and data[key] == '':
-                    pass
+                if key == 'last_edit' and data[key] in [None, '']:
+                    continue
                 else:
                     data[key] = utils.parse_date(val, False)
             elif key == 'kolektibilitas':

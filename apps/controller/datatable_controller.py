@@ -22,7 +22,8 @@ class datatable_controller:
             success, data = self.model.get_all_records(limit=controller.DATATABLE_BATCH, offset=controller.DATATABLE_LOADED_ROWS)
             if success and data:
                 for value in data:
-                    values = list(value.values())
+                    # values = list(value.values())
+                    values = ['' if key == 'last_edit' and val in ['', None] else val for key, val in value.items()]
                     controller.DATATABLE_LOADED_ROWS += 1
                     self.datatable.datatable.insert('', tk.END, values=values)
                 controller.IS_ALL_LOADED = controller.DATATABLE_LOADED_ROWS >= total_record
