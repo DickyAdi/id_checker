@@ -149,6 +149,11 @@ class debitur_controller:
                         <td class='align-colon'>:</td>
                         <td>{data.keterangan}</td>
                     </tr>
+                    <tr>
+                        <td class='first-col'>Tanggal masuk</td>
+                        <td class='align-colon'>:</td>
+                        <td>{data.created_at}</td>
+                    </tr>
                 </table>
             </body>
         </html>
