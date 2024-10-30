@@ -33,8 +33,8 @@ class App(tk.Tk):
         self.title("ID Checker")
 
         self.head_frame = ttk.Frame(self, padding=10)
-        # self.corporate_logo = image_label(self.head_frame, './assets/img/logo_BJA_PNG(resize).png', 0, 0)
-        self.corporate_logo = image_label(self.head_frame, 'apps/assets/img/logo_BJA_PNG(resize).png', 0, 0) #for macOS
+        self.corporate_logo = image_label(self.head_frame, 'apps/assets/img/logo_BJA_PNG(resize).png', 0, 0)
+        # self.corporate_logo = image_label(self.head_frame, 'apps/assets/img/logo_BJA_PNG(resize).png', 0, 0) #for macOS
         self.head_frame.grid(row=0, column=0, sticky='nsew')
 
         #tab 1

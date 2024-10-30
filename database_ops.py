@@ -38,12 +38,12 @@ def create_prepopulated_table():
 
 with sqlite3.connect('CHECKER_DATABASE.db') as conn:
 #     print(conn.execute('SELECT * FROM db_checker').description)
-    conn.execute('DELETE FROM db_checker')
+    # conn.execute('DELETE FROM db_checker')
     # res = conn.execute('SELECT id FROM db_checker ORDER BY CAST(SUBSTR(id, 3) AS INTEGER) DESC LIMIT 1').fetchone()
     # print(res[0])
-    # conn.execute('DROP TABLE db_checker')
+    conn.execute('DROP TABLE db_checker')
     # conn.execute('DROP TABLE prepopulated_table')
     print('done')
-# create_table()
-# create_prepopulated_table()
+create_table()
+create_prepopulated_table()
 # print('done')
