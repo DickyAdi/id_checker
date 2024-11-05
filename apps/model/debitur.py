@@ -54,7 +54,7 @@ class debitur:
         new_debitur.tanggal_lahir = parsed_data['tanggal_lahir']
         new_debitur.tempat_lahir = parsed_data['tempat_lahir']
         new_debitur.alamat = parsed_data['alamat']
-        new_debitur.nama_ibu_kandung = parsed_data['alamat']
+        new_debitur.nama_ibu_kandung = parsed_data['nama_ibu_kandung']
         new_debitur.nama_pasangan = parsed_data['nama_pasangan']
         new_debitur.kolektibilitas = parsed_data['kolektibilitas']
         new_debitur.keterangan = parsed_data['keterangan']

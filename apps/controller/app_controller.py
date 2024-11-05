@@ -37,6 +37,7 @@ class app_controller:
                     self.app.keterangan.set_value(data.keterangan)
                     self.app.created_at.set_value(data.created_at)
                     self.app.last_edit.set_value(data.last_edit if data.last_edit else '')
+                    self.app.id.disable_state()
                     self.app.created_at.disable_state()
                     self.app.last_edit.disable_state()
 
